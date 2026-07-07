@@ -1,6 +1,9 @@
 # CodeCoin — QR System
 
-ระบบ QR ประกอบบอร์ดเกมเพื่อการศึกษา CodeCoin (base จาก Monopoly) — Static ทั้งหมด host ฟรีบน GitHub Pages ได้
+ระบบ QR ประกอบบอร์ดเกมเพื่อการศึกษา CodeCoin (base จาก Monopoly) — Static ทั้งหมด host บน GitHub Pages
+
+**🌐 เว็บจริง:** https://ballgamerzaman-code.github.io/codecoin/
+**📦 Repo:** https://github.com/ballgamerzaman-code/codecoin (push ขึ้น main แล้วเว็บอัปเดตเองใน ~1 นาที)
 
 ## ไฟล์ในโปรเจค
 
