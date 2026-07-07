@@ -1,0 +1,521 @@
+{
+  "spaces": {
+    "coding_01": {
+      "zone": "coding",
+      "name_th": "HTML & CSS เบื้องต้น",
+      "price": 1000,
+      "rent": [
+        90,
+        220,
+        450,
+        900
+      ],
+      "upgrade_cost": 500,
+      "content_th": "HTML คือโครงสร้างของหน้าเว็บ ส่วน CSS คือการตกแต่ง เปรียบเหมือนโครงบ้านกับสีทาบ้าน แท็กพื้นฐานเช่น <h1> คือหัวข้อใหญ่ และ <p> คือย่อหน้า"
+    },
+    "coding_02": {
+      "zone": "coding",
+      "name_th": "Python พื้นฐาน",
+      "price": 1200,
+      "rent": [
+        100,
+        250,
+        500,
+        1000
+      ],
+      "upgrade_cost": 600,
+      "content_th": "Python ตั้งชื่อตามคณะตลก Monty Python ไม่ใช่งู! จุดเด่นคืออ่านง่าย ใช้การย่อหน้า (indent) แบ่งบล็อกโค้ดแทนวงเล็บปีกกา และคำสั่งแสดงผลพื้นฐานคือ print()"
+    },
+    "coding_03": {
+      "zone": "coding",
+      "name_th": "JavaScript เชิงโต้ตอบ",
+      "price": 1400,
+      "rent": [
+        120,
+        300,
+        600,
+        1200
+      ],
+      "upgrade_cost": 700,
+      "content_th": "JavaScript ทำให้หน้าเว็บโต้ตอบกับผู้ใช้ได้ เช่น กดปุ่มแล้วมีอะไรเกิดขึ้น ทำงานในเบราว์เซอร์โดยตรง คำสั่งแสดงผลใน console คือ console.log()"
+    },
+    "coding_04": {
+      "zone": "coding",
+      "name_th": "ฐานข้อมูล SQL เบื้องต้น",
+      "price": 1600,
+      "rent": [
+        140,
+        350,
+        700,
+        1400
+      ],
+      "upgrade_cost": 800,
+      "content_th": "SQL คือภาษาสำหรับจัดการฐานข้อมูล คำสั่งพื้นฐาน 4 ตัว: SELECT (ดึงข้อมูล), INSERT (เพิ่ม), UPDATE (แก้ไข), DELETE (ลบ) โดย SELECT ถูกใช้บ่อยที่สุด"
+    },
+    "design_01": {
+      "zone": "design",
+      "name_th": "ทฤษฎีสีและองค์ประกอบศิลป์",
+      "price": 1200,
+      "rent": [
+        100,
+        250,
+        500,
+        1000
+      ],
+      "upgrade_cost": 600,
+      "content_th": "วงล้อสี (Color Wheel) ช่วยจับคู่สี สีตรงข้ามกันในวงล้อเรียกว่าสีคู่ตรงข้าม (Complementary) ให้ความรู้สึกโดดเด่น ส่วนสีข้างเคียงกันให้ความรู้สึกกลมกลืน"
+    },
+    "design_02": {
+      "zone": "design",
+      "name_th": "Photoshop ตกแต่งภาพ",
+      "price": 1400,
+      "rent": [
+        120,
+        300,
+        600,
+        1200
+      ],
+      "upgrade_cost": 700,
+      "content_th": "หัวใจของ Photoshop คือระบบ Layer ที่ให้แก้ไขแต่ละส่วนแยกกันโดยไม่กระทบภาพต้นฉบับ ไฟล์งานที่เก็บ Layer ไว้ครบคือนามสกุล .PSD"
+    },
+    "design_03": {
+      "zone": "design",
+      "name_th": "Illustrator วาดเวกเตอร์",
+      "price": 1600,
+      "rent": [
+        140,
+        350,
+        700,
+        1400
+      ],
+      "upgrade_cost": 800,
+      "content_th": "Illustrator สร้างงานแบบเวกเตอร์ (Vector) ที่ขยายใหญ่แค่ไหนก็ไม่แตก ต่างจากภาพแบบพิกเซล (Raster) เหมาะกับงานโลโก้และสื่อสิ่งพิมพ์ ไฟล์งานคือ .AI"
+    },
+    "design_04": {
+      "zone": "design",
+      "name_th": "Canva ออกแบบสื่อโซเชียล",
+      "price": 1800,
+      "rent": [
+        150,
+        380,
+        760,
+        1500
+      ],
+      "upgrade_cost": 900,
+      "content_th": "Canva คือเครื่องมือออกแบบออนไลน์ที่ใช้ง่าย มี Template สำเร็จรูปให้เลือกตามขนาดโพสต์ของแต่ละแพลตฟอร์ม เช่น โพสต์ IG เป็นสี่เหลี่ยมจัตุรัส 1080x1080"
+    },
+    "office_01": {
+      "zone": "office",
+      "name_th": "Word จัดหน้าเอกสาร",
+      "price": 800,
+      "rent": [
+        80,
+        200,
+        400,
+        800
+      ],
+      "upgrade_cost": 400,
+      "content_th": "การจัดหน้าเอกสารที่ดีเริ่มจากการใช้ Style (Heading 1, 2, 3) แทนการทำตัวหนาเอง เพราะช่วยสร้างสารบัญอัตโนมัติได้ และคีย์ลัด Ctrl+S คือการบันทึกไฟล์"
+    },
+    "office_02": {
+      "zone": "office",
+      "name_th": "Excel สูตรคำนวณ",
+      "price": 1000,
+      "rent": [
+        90,
+        220,
+        450,
+        900
+      ],
+      "upgrade_cost": 500,
+      "content_th": "สูตร Excel ขึ้นต้นด้วยเครื่องหมาย = เสมอ สูตรพื้นฐานที่ใช้บ่อย: SUM (ผลรวม), AVERAGE (ค่าเฉลี่ย), COUNT (นับจำนวน) เช่น =SUM(A1:A10)"
+    },
+    "office_03": {
+      "zone": "office",
+      "name_th": "Excel Pivot Table & กราฟ",
+      "price": 1200,
+      "rent": [
+        100,
+        250,
+        500,
+        1000
+      ],
+      "upgrade_cost": 600,
+      "content_th": "Pivot Table ช่วยสรุปข้อมูลจำนวนมากได้ในไม่กี่คลิก เช่น สรุปยอดขายรายเดือนจากข้อมูลดิบพันแถว โดยไม่ต้องเขียนสูตรเอง สร้างได้จากเมนู Insert > PivotTable"
+    },
+    "office_04": {
+      "zone": "office",
+      "name_th": "PowerPoint นำเสนองาน",
+      "price": 1400,
+      "rent": [
+        120,
+        300,
+        600,
+        1200
+      ],
+      "upgrade_cost": 700,
+      "content_th": "สไลด์ที่ดีควรมีข้อความน้อย เน้นภาพและคีย์เวิร์ด กฎที่นิยมคือ 6x6: ไม่เกิน 6 บรรทัดต่อสไลด์ และไม่เกิน 6 คำต่อบรรทัด คีย์ลัดเริ่มพรีเซนต์คือ F5"
+    },
+    "hardware_01": {
+      "zone": "hardware",
+      "name_th": "CPU และเมนบอร์ด",
+      "price": 1800,
+      "rent": [
+        150,
+        380,
+        760,
+        1500
+      ],
+      "upgrade_cost": 900,
+      "content_th": "CPU คือสมองของคอมพิวเตอร์ ติดตั้งลงบน Socket ของเมนบอร์ด ต้องเลือกรุ่นที่ Socket ตรงกัน เช่น CPU Intel LGA1700 ใช้กับเมนบอร์ด LGA1700 เท่านั้น"
+    },
+    "hardware_02": {
+      "zone": "hardware",
+      "name_th": "RAM และหน่วยเก็บข้อมูล",
+      "price": 2000,
+      "rent": [
+        170,
+        420,
+        840,
+        1700
+      ],
+      "upgrade_cost": 1000,
+      "content_th": "RAM คือหน่วยความจำชั่วคราวขณะเครื่องทำงาน ปิดเครื่องข้อมูลหาย ส่วน SSD/HDD คือที่เก็บข้อมูลถาวร โดย SSD เร็วกว่า HDD หลายเท่าเพราะไม่มีจานหมุน"
+    },
+    "hardware_03": {
+      "zone": "hardware",
+      "name_th": "Power Supply และการต่อสายไฟ",
+      "price": 2200,
+      "rent": [
+        180,
+        450,
+        900,
+        1800
+      ],
+      "upgrade_cost": 1100,
+      "content_th": "Power Supply (PSU) จ่ายไฟให้ทุกชิ้นส่วน ต้องเลือกวัตต์ให้พอกับอุปกรณ์ สายหลักคือ 24-pin เข้าเมนบอร์ด และ 8-pin เลี้ยง CPU ต่อผิดช่องเครื่องไม่ติด"
+    },
+    "hardware_04": {
+      "zone": "hardware",
+      "name_th": "ประกอบเครื่อง & ลงวินโดวส์",
+      "price": 2500,
+      "rent": [
+        200,
+        500,
+        1000,
+        2000
+      ],
+      "upgrade_cost": 1250,
+      "content_th": "ลำดับประกอบที่นิยม: ติด CPU + RAM ลงเมนบอร์ดก่อนใส่เคส แล้วค่อยติดตั้ง PSU และการ์ดจอ สุดท้ายลงวินโดวส์ผ่าน USB Boot ที่สร้างจาก Media Creation Tool"
+    }
+  },
+  "questions": [
+    {
+      "question_id": "coding_02_L1_01",
+      "space_id": "coding_02",
+      "level": 1,
+      "question_th": "คำสั่งใดใช้แสดงผลข้อความใน Python?",
+      "choices": [
+        "echo(\"Hello\")",
+        "print(\"Hello\")",
+        "console.log(\"Hello\")"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_02_L1_02",
+      "space_id": "coding_02",
+      "level": 1,
+      "question_th": "Python แบ่งบล็อกโค้ดด้วยอะไร?",
+      "choices": [
+        "วงเล็บปีกกา { }",
+        "เครื่องหมาย ;",
+        "การย่อหน้า (indent)"
+      ],
+      "answer": 2,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_02_L2_01",
+      "space_id": "coding_02",
+      "level": 2,
+      "question_th": "ข้อใดคือ list ใน Python?",
+      "choices": [
+        "x = [1, 2, 3]",
+        "x = (1, 2, 3)",
+        "x = {\"a\": 1}"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "coding_02_L3_01",
+      "space_id": "coding_02",
+      "level": 3,
+      "question_th": "ผลลัพธ์ของ print(len(\"CodeCoin\")) คืออะไร?",
+      "choices": [
+        "7",
+        "8",
+        "9",
+        "Error"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_01_L1_01",
+      "space_id": "office_01",
+      "level": 1,
+      "question_th": "คีย์ลัดใดใช้บันทึกไฟล์ใน Word?",
+      "choices": [
+        "Ctrl+P",
+        "Ctrl+S",
+        "Ctrl+V"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "office_01_L1_02",
+      "space_id": "office_01",
+      "level": 1,
+      "question_th": "การสร้างสารบัญอัตโนมัติต้องใช้อะไรก่อน?",
+      "choices": [
+        "ตัวหนา (Bold)",
+        "Style (Heading)",
+        "เปลี่ยนฟอนต์"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_02_L1_01",
+      "space_id": "design_02",
+      "level": 1,
+      "question_th": "ไฟล์ Photoshop ที่เก็บ Layer ครบคือนามสกุลใด?",
+      "choices": [
+        ".JPG",
+        ".PSD",
+        ".PNG"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_01_L1_01",
+      "space_id": "hardware_01",
+      "level": 1,
+      "question_th": "CPU ติดตั้งลงบนส่วนใดของเมนบอร์ด?",
+      "choices": [
+        "Socket",
+        "RAM Slot",
+        "SATA Port"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "DRAFT_ตัวอย่างแถวร่าง",
+      "space_id": "coding_01",
+      "level": 1,
+      "question_th": "DRAFT ใส่โจทย์ที่ยังไม่เสร็จแบบนี้ ระบบจะข้ามให้",
+      "choices": [],
+      "answer": 0,
+      "time_limit": 0
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_coding_01",
+      "zone": "coding",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ชนะ Hackathon ระดับประเทศ!",
+      "description_th": "ทีมของคุณคว้าแชมป์ รับเงินรางวัลไปเลย",
+      "effect": "+2000"
+    },
+    {
+      "event_id": "ev_coding_02",
+      "zone": "coding",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "โค้ดมี bug ใน production",
+      "description_th": "ระบบล่มกลางดึก ต้องจ้างคนช่วยแก้ด่วน",
+      "effect": "-800"
+    },
+    {
+      "event_id": "ev_coding_03",
+      "zone": "coding",
+      "mechanic": "choice",
+      "weight": 1,
+      "title_th": "เข้ารอบชิง Hackathon!",
+      "description_th": "จะทุ่มสุดตัวหรือรับรางวัลปลอบใจ?",
+      "effect": "bet:1000:x3|safe:+300"
+    },
+    {
+      "event_id": "ev_coding_04",
+      "zone": "coding",
+      "mechanic": "chain",
+      "weight": 1,
+      "title_th": "เขียน Library แจกฟรีจนดัง",
+      "description_th": "ทุกคนต้องจ่ายค่า support ให้คุณ",
+      "effect": "collect:200"
+    },
+    {
+      "event_id": "ev_coding_05",
+      "zone": "coding",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "Push โค้ดไม่ทัน deadline",
+      "description_th": "โดนหักค่าปรับจากลูกค้า",
+      "effect": "-500"
+    },
+    {
+      "event_id": "ev_office_01",
+      "zone": "office",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "นำเสนองานดีเยี่ยม",
+      "description_th": "หัวหน้าปลื้มมาก ให้โบนัสพิเศษ",
+      "effect": "+1000"
+    },
+    {
+      "event_id": "ev_office_02",
+      "zone": "office",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ลืม save ไฟล์งานด่วน",
+      "description_th": "ต้องนั่งทำใหม่ทั้งหมด เสียเวลา 1 เทิร์น",
+      "effect": "skip:1"
+    },
+    {
+      "event_id": "ev_office_03",
+      "zone": "office",
+      "mechanic": "chain",
+      "weight": 1,
+      "title_th": "ทำ Template สวยจนบริษัทซื้อ",
+      "description_th": "เก็บค่าลิขสิทธิ์จากทุกคน",
+      "effect": "collect:150"
+    },
+    {
+      "event_id": "ev_office_04",
+      "zone": "office",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "สูตร Excel ผิดทำรายงานพัง",
+      "description_th": "ต้องจ่ายค่าเสียหาย",
+      "effect": "-600"
+    },
+    {
+      "event_id": "ev_design_01",
+      "zone": "design",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ชนะประกวดออกแบบระดับชาติ",
+      "description_th": "ผลงานของคุณคว้ารางวัลใหญ่",
+      "effect": "+1800"
+    },
+    {
+      "event_id": "ev_design_02",
+      "zone": "design",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ผลงานถูกก็อปไปประกวด",
+      "description_th": "เสียทั้งงานเสียทั้งใจ",
+      "effect": "-1000"
+    },
+    {
+      "event_id": "ev_design_03",
+      "zone": "design",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ลูกค้าสั่งแก้งานใหม่ทั้งหมด",
+      "description_th": "นั่งแก้ยาว ๆ ข้าม 1 เทิร์น",
+      "effect": "skip:1"
+    },
+    {
+      "event_id": "ev_design_04",
+      "zone": "design",
+      "mechanic": "chain",
+      "weight": 1,
+      "title_th": "สไตล์งานเป็นกระแส",
+      "description_th": "ทุกคนแย่งกันจ้างคุณ",
+      "effect": "collect:200"
+    },
+    {
+      "event_id": "ev_hardware_01",
+      "zone": "hardware",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ประกอบเครื่องขายได้ราคาดี",
+      "description_th": "กำไรงามจากการประกอบคอมให้ลูกค้า",
+      "effect": "+1500"
+    },
+    {
+      "event_id": "ev_hardware_02",
+      "zone": "hardware",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "ไฟกระชากเครื่องพัง",
+      "description_th": "ต้องซื้ออะไหล่ใหม่ยกชุด",
+      "effect": "-1200"
+    },
+    {
+      "event_id": "ev_hardware_03",
+      "zone": "hardware",
+      "mechanic": "chain",
+      "weight": 1,
+      "title_th": "ไวรัสระบาดในระบบ!",
+      "description_th": "ทุกคนโดนหมด ยกเว้นคุณที่ลงแอนตี้ไวรัสไว้",
+      "effect": "all:-500"
+    },
+    {
+      "event_id": "ev_hardware_04",
+      "zone": "hardware",
+      "mechanic": "choice",
+      "weight": 1,
+      "title_th": "ได้ของแถมจากงาน Computex",
+      "description_th": "จะเก็งกำไรหรือขายทิ้งเลย?",
+      "effect": "bet:1000:x3|safe:+300"
+    }
+  ],
+  "bugjam": [
+    {
+      "bug_id": "bug_01",
+      "code": "for i in range(5)\n    print(i)",
+      "question_th": "โค้ดนี้ error เพราะอะไร?",
+      "choices": [
+        "ใช้ range ไม่ได้",
+        "ลืมใส่ : ท้ายบรรทัด for",
+        "ต้องใช้ printf"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "bug_id": "bug_02",
+      "code": "nane = \"Ball\"\nprint(name)",
+      "question_th": "โค้ดนี้ error เพราะอะไร?",
+      "choices": [
+        "ประกาศตัวแปรผิดชื่อ (nane ≠ name)",
+        "print ใช้กับตัวแปรไม่ได้",
+        "ต้องใส่ ; ท้ายบรรทัด"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "bug_id": "bug_03",
+      "code": "x = \"5\"\ny = x + 3\nprint(y)",
+      "question_th": "โค้ดนี้ error เพราะอะไร?",
+      "choices": [
+        "บวกเลขเกิน 2 ตัวไม่ได้",
+        "เอา string มาบวกกับตัวเลขไม่ได้",
+        "ต้องประกาศ y ก่อน"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    }
+  ]
+}

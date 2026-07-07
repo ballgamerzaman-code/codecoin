@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeCoin — QR System</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board:#0B2B22;      /* พื้น PCB */
+    --panel:#0D3327;      /* กล่องเนื้อหา */
+    --line:#1F4A3A;       /* เส้นขอบ */
+    --gold:#FBBF24;       /* สีทอง (เหตุการณ์/ปุ่มหลัก) */
+    --text:#E2E8F0;
+    --muted:#94A3B8;
+    --ok:#4ADE80;
+    --bad:#F87171;
+    /* สีประจำโซน */
+    --coding:#4ADE80; --design:#FB923C; --office:#38BDF8; --hardware:#F472B6;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:var(--board); color:var(--text);
+    font-family:'Sarabun',sans-serif; min-height:100vh;
+    display:flex; justify-content:center; padding:20px 14px 40px;
+    background-image:
+      linear-gradient(#0F4C3A 1px, transparent 1px),
+      linear-gradient(90deg, #0F4C3A 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+  .app { width:100%; max-width:430px; }
+
+  /* ---------- ส่วนหัวแบบชิป ---------- */
+  header {
+    background:#111827; border:2px solid var(--gold); border-radius:14px;
+    padding:14px 18px; text-align:center; position:relative; margin-bottom:18px;
+  }
+  header::before, header::after {
+    content:""; position:absolute; top:-8px; left:20%; width:60%; height:8px;
+    background:repeating-linear-gradient(90deg, var(--gold) 0 4px, transparent 4px 18px);
+  }
+  header::after { top:auto; bottom:-8px; }
+  header h1 { font-family:'Kanit',sans-serif; font-size:24px; color:var(--gold); letter-spacing:1px; }
+  header p { font-size:12px; color:#86EFAC; }
+
+  .zone-tag {
+    display:inline-block; font-size:12px; font-weight:700; padding:3px 12px;
+    border-radius:20px; margin-bottom:10px; color:#05100C;
+  }
+  .card {
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px 16px; margin-bottom:14px;
+  }
+  h2 { font-family:'Kanit',sans-serif; font-size:20px; margin-bottom:10px; }
+  .content { font-size:14.5px; line-height:1.8; color:#CBD5E1; }
+  .price { color:var(--gold); font-weight:700; }
+
+  .q { font-weight:700; font-size:15px; margin:6px 0 12px; }
+  .choice {
+    display:block; width:100%; text-align:left; background:#0B241B;
+    border:1px solid var(--line); border-radius:10px; color:var(--text);
+    padding:12px 14px; font-size:14px; font-family:inherit; margin-bottom:9px; cursor:pointer;
+  }
+  .choice:hover { border-color:var(--gold); }
+  .choice.correct { border-color:var(--ok); background:#0F3B2A; }
+  .choice.wrong { border-color:var(--bad); background:#3B1414; }
+
+  .timer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--gold); margin-bottom:10px; }
+  .timer.danger { color:var(--bad); }
+
+  .result { text-align:center; border-radius:12px; padding:14px; font-size:15px; margin-top:6px; }
+  .result.win { background:#0F3B2A; border:1px solid var(--ok); color:var(--ok); }
+  .result.lose { background:#3B1414; border:1px solid var(--bad); color:var(--bad); }
+  .result.info { background:#14200E; border:1px solid var(--gold); color:#FDE68A; }
+
+  .btn {
+    display:block; width:100%; border:none; border-radius:12px; padding:13px;
+    font-family:'Kanit',sans-serif; font-size:16px; cursor:pointer; margin-top:10px;
+    background:var(--gold); color:#05100C;
+  }
+  .btn.ghost { background:transparent; border:1px solid var(--gold); color:var(--gold); }
+
+  .code-box {
+    background:#05100C; border:1px solid var(--line); border-radius:10px;
+    font-family:monospace; font-size:13px; color:#A7F3D0; padding:12px; white-space:pre; overflow-x:auto; margin-bottom:12px;
+  }
+  .menu-item {
+    display:flex; justify-content:space-between; align-items:center;
+    background:#0B241B; border:1px solid var(--line); border-radius:10px;
+    border-left:4px solid var(--zc, var(--line));
+    padding:11px 14px; margin-bottom:8px; cursor:pointer; font-size:14px;
+  }
+  .menu-item:hover { border-color:var(--gold); border-left-color:var(--zc, var(--gold)); }
+  .menu-item small { color:var(--muted); font-size:11px; }
+  .menu-zone { margin-top:16px; }
+  .menu-zone-head {
+    display:flex; align-items:center; gap:10px; margin-bottom:8px;
+    font-family:'Kanit',sans-serif; font-size:13.5px; letter-spacing:.5px; color:var(--zc);
+  }
+  .menu-zone-head::after { content:""; flex:1; height:1px; background:var(--line); }
+  .footer-note { text-align:center; font-size:11px; color:#4B6A5C; margin-top:16px; }
+
+  .data-warn {
+    background:#3A2A0A; border:1px solid var(--gold); border-radius:10px;
+    font-size:12.5px; color:#FDE68A; padding:9px 12px; margin-bottom:14px; text-align:center;
+  }
+  .upgrade-links { display:flex; gap:8px; }
+  .upgrade-links .btn { font-size:14px; padding:10px 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>CodeCoin</h1>
+    <p>QR SYSTEM — PCB EDITION REV 1.1</p>
+  </header>
+  <div id="dataStatus"></div>
+  <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
+  <div class="footer-note">ต้นแบบระบบ QR — เปิดผ่าน ?space=รหัสช่อง</div>
+</div>
+
+<script>
+/* =====================================================================
+   ⚙️ ส่วนที่ 1: ข้อมูลสำรอง (FALLBACK)
+   ---------------------------------------------------------------------
+   ข้อมูลจริงอยู่ใน data.json (โหลดตอนเปิดหน้า) — ก้อนนี้ใช้เฉพาะกรณี
+   โหลด data.json ไม่สำเร็จ เช่น เปิดไฟล์ตรง ๆ แบบ file:// หรือเน็ตล่ม
+   โครงสร้างตรงกับเอกสาร qr_data_structure.md ทุกคอลัมน์
+   ===================================================================== */
+const FALLBACK = {
+  spaces: {
+    coding_02: {
+      zone: "coding", name_th: "Python พื้นฐาน", price: 1200,
+      rent: [100, 250, 500, 1000], upgrade_cost: 600,
+      content_th: "📘 รู้หรือไม่? Python ตั้งชื่อตามคณะตลก Monty Python ไม่ใช่งู! จุดเด่นคืออ่านง่าย ใช้การย่อหน้า (indent) แบ่งบล็อกโค้ดแทนวงเล็บปีกกา และคำสั่งแสดงผลพื้นฐานคือ print()"
+    },
+    office_01: {
+      zone: "office", name_th: "Word จัดหน้าเอกสาร", price: 800,
+      rent: [80, 200, 400, 800], upgrade_cost: 400,
+      content_th: "📘 การจัดหน้าเอกสารที่ดีเริ่มจากการใช้ Style (Heading 1, 2, 3) แทนการทำตัวหนาเอง เพราะช่วยสร้างสารบัญอัตโนมัติได้ และคีย์ลัด Ctrl+S คือการบันทึกไฟล์"
+    },
+    design_02: {
+      zone: "design", name_th: "Photoshop ตกแต่งภาพ", price: 1400,
+      rent: [120, 300, 600, 1200], upgrade_cost: 700,
+      content_th: "📘 หัวใจของ Photoshop คือระบบ Layer ที่ให้แก้ไขแต่ละส่วนแยกกันโดยไม่กระทบภาพต้นฉบับ ไฟล์งานที่เก็บ Layer ไว้ครบคือนามสกุล .PSD"
+    },
+    hardware_01: {
+      zone: "hardware", name_th: "CPU และเมนบอร์ด", price: 1800,
+      rent: [150, 380, 760, 1500], upgrade_cost: 900,
+      content_th: "📘 CPU คือสมองของคอมพิวเตอร์ ติดตั้งลงบน Socket ของเมนบอร์ด ต้องเลือกรุ่นที่ Socket ตรงกัน เช่น CPU Intel LGA1700 ใช้กับเมนบอร์ด LGA1700 เท่านั้น"
+    },
+  },
+  questions: [
+    { space_id:"coding_02", level:1, question_th:"คำสั่งใดใช้แสดงผลข้อความใน Python?",
+      choices:['echo("Hello")','print("Hello")','console.log("Hello")'], answer:1, time_limit:0 },
+    { space_id:"coding_02", level:1, question_th:"Python แบ่งบล็อกโค้ดด้วยอะไร?",
+      choices:["วงเล็บปีกกา { }","เครื่องหมาย ;","การย่อหน้า (indent)"], answer:2, time_limit:0 },
+    { space_id:"coding_02", level:2, question_th:"ข้อใดคือ list ใน Python?",
+      choices:['x = [1, 2, 3]','x = (1, 2, 3)','x = {"a": 1}'], answer:0, time_limit:30 },
+    { space_id:"office_01", level:1, question_th:"คีย์ลัดใดใช้บันทึกไฟล์ใน Word?",
+      choices:["Ctrl+P","Ctrl+S","Ctrl+V"], answer:1, time_limit:0 },
+    { space_id:"design_02", level:1, question_th:"ไฟล์ Photoshop ที่เก็บ Layer ครบคือนามสกุลใด?",
+      choices:[".JPG",".PSD",".PNG"], answer:1, time_limit:0 },
+    { space_id:"hardware_01", level:1, question_th:"CPU ติดตั้งลงบนส่วนใดของเมนบอร์ด?",
+      choices:["Socket","RAM Slot","SATA Port"], answer:0, time_limit:0 },
+  ],
+  events: [
+    { zone:"coding", mechanic:"simple", weight:2, title_th:"ชนะ Hackathon ระดับประเทศ!", effect:"+2000" },
+    { zone:"coding", mechanic:"simple", weight:2, title_th:"โค้ดมี bug ใน production", effect:"-800" },
+    { zone:"coding", mechanic:"choice", weight:1, title_th:"เข้ารอบชิง Hackathon!", effect:"bet:1000:x3|safe:+300" },
+    { zone:"coding", mechanic:"chain",  weight:1, title_th:"เขียน Library แจกฟรีจนดัง", effect:"collect:200" },
+    { zone:"office", mechanic:"simple", weight:2, title_th:"นำเสนองานดีเยี่ยม หัวหน้าปลื้ม", effect:"+1000" },
+    { zone:"office", mechanic:"simple", weight:2, title_th:"ลืม save ไฟล์งานด่วน", effect:"skip:1" },
+    { zone:"design", mechanic:"simple", weight:2, title_th:"ชนะประกวดออกแบบระดับชาติ", effect:"+1800" },
+    { zone:"design", mechanic:"simple", weight:2, title_th:"คอมแครชขณะเรนเดอร์งาน", effect:"-500" },
+    { zone:"hardware", mechanic:"chain", weight:1, title_th:"ไวรัสระบาดในระบบ!", effect:"all:-500" },
+    { zone:"hardware", mechanic:"simple", weight:2, title_th:"ประกอบเครื่องขายได้ราคาดี", effect:"+1500" },
+  ],
+  bugjam: [
+    { code:"for i in range(5)\n    print(i)",
+      question_th:"โค้ดนี้ error เพราะอะไร?",
+      choices:["ใช้ range ไม่ได้","ลืมใส่ : ท้ายบรรทัด for","ต้องใช้ printf"], answer:1, time_limit:30 },
+    { code:'nane = "Ball"\nprint(name)',
+      question_th:"โค้ดนี้ error เพราะอะไร?",
+      choices:["ประกาศตัวแปรผิดชื่อ (nane ≠ name)","print ใช้กับตัวแปรไม่ได้","ต้องใส่ ; ท้ายบรรทัด"], answer:0, time_limit:30 },
+  ],
+};
+
+/* =====================================================================
+   ⚙️ ส่วนที่ 2: ตั้งค่าระบบ (แก้ตัวเลขกติกาได้ที่นี่)
+   ===================================================================== */
+const CONFIG = {
+  data_url: "data.json",  // แหล่งข้อมูลจริง — เปลี่ยนเป็น URL Apps Script/opensheet ได้เลย
+  log_url: "",            // (optional) URL Apps Script สำหรับเก็บสถิติการตอบ — เว้นว่าง = ไม่เก็บ
+  discount_percent: 20,   // ส่วนลดเมื่อตอบถูก (%)
+  zone_names: { coding:"Coding Avenue", design:"Design District", office:"Office Street", hardware:"Hardware Town" },
+  zone_colors: { coding:"var(--coding)", design:"var(--design)", office:"var(--office)", hardware:"var(--hardware)" },
+  upgrade_names: { 1:"มือใหม่", 2:"ชำนาญ", 3:"ผู้เชี่ยวชาญ" }, // ชื่อระดับ rent[1..3]
+};
+
+/* =====================================================================
+   ส่วนที่ 3: ตัวระบบ (ปกติไม่ต้องแก้ส่วนนี้)
+   ===================================================================== */
+let SPACES, QUESTIONS, EVENTS, BUGJAM;
+
+const screen = document.getElementById("screen");
+const params = new URLSearchParams(location.search);
+const param = params.get("space");
+const upgradeParam = params.get("upgrade");
+
+// ---------- โหลดข้อมูลจาก data.json → ถ้าพลาดใช้ FALLBACK ----------
+async function loadData() {
+  let source = FALLBACK, usedFallback = true;
+  try {
+    const res = await fetch(CONFIG.data_url, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const d = await res.json();
+    if (d.spaces && d.questions && d.events && d.bugjam) { source = d; usedFallback = false; }
+    else throw new Error("โครงสร้างข้อมูลไม่ครบ");
+  } catch (e) {
+    console.warn("โหลดฐานข้อมูลไม่สำเร็จ ใช้ข้อมูลสำรอง:", e.message);
+  }
+
+  SPACES = source.spaces;
+  // ข้ามแถวร่าง: question_th ขึ้นต้นด้วย DRAFT
+  QUESTIONS = source.questions.filter(q => !String(q.question_th).startsWith("DRAFT"));
+  EVENTS = source.events;
+  BUGJAM = source.bugjam.filter(b => !String(b.question_th).startsWith("DRAFT"));
+
+  if (usedFallback)
+    document.getElementById("dataStatus").innerHTML =
+      `<div class="data-warn">⚠️ โหลดฐานข้อมูลไม่สำเร็จ — กำลังใช้ข้อมูลสำรองในเครื่อง</div>`;
+
+  route();
+}
+
+// ---------- (optional) ส่งสถิติการตอบไป Google Sheet ผ่าน Apps Script ----------
+function logAnswer(kind, id, level, correct) {
+  if (!CONFIG.log_url) return;
+  const body = JSON.stringify({ kind, space_id: id, level, correct, ts: new Date().toISOString() });
+  try { navigator.sendBeacon(CONFIG.log_url, body); }
+  catch (e) { fetch(CONFIG.log_url, { method:"POST", body, keepalive:true }).catch(() => {}); }
+}
+
+function zoneTag(zone) {
+  return `<span class="zone-tag" style="background:${CONFIG.zone_colors[zone]}">${CONFIG.zone_names[zone]}</span>`;
+}
+
+// แปลรหัส effect เป็นข้อความภาษาไทย
+function effectText(effect) {
+  if (effect.startsWith("+")) return `รับ ${(+effect.slice(1)).toLocaleString()} TechCoin 🎉`;
+  if (effect.startsWith("-")) return `จ่าย ${(+effect.slice(1)).toLocaleString()} TechCoin 💸`;
+  if (effect.startsWith("skip")) return `ข้าม ${effect.split(":")[1]} เทิร์น ⏸`;
+  if (effect.startsWith("all")) return `ผู้เล่นคนอื่นทุกคนจ่าย ${(+effect.split(":")[1].replace("-","")).toLocaleString()} TechCoin ยกเว้นคุณ!`;
+  if (effect.startsWith("collect")) return `เก็บจากผู้เล่นทุกคน คนละ ${(+effect.split(":")[1]).toLocaleString()} TechCoin`;
+  return effect;
+}
+
+// สุ่มแบบมีน้ำหนัก (weighted random)
+function weightedPick(list) {
+  const total = list.reduce((s, e) => s + e.weight, 0);
+  let r = Math.random() * total;
+  for (const e of list) { r -= e.weight; if (r <= 0) return e; }
+  return list[list.length - 1];
+}
+
+// ---------- หน้าช่องทรัพย์สิน ----------
+function renderSpace(id) {
+  const sp = SPACES[id];
+  const pool = QUESTIONS.filter(q => q.space_id === id && q.level === 1);
+  const discounted = Math.round(sp.price * (100 - CONFIG.discount_percent) / 100);
+
+  const upgradeBtns = `
+    <div class="card">
+      <p class="q">⬆ อัปเกรดช่องนี้ (สำหรับเจ้าของ)</p>
+      <div class="upgrade-links">
+        <button class="btn ghost" onclick="location.search='?space=${id}&upgrade=2'">ชำนาญ (L2)</button>
+        <button class="btn ghost" onclick="location.search='?space=${id}&upgrade=3'">ผู้เชี่ยวชาญ (L3)</button>
+      </div>
+    </div>`;
+
+  let quizCard;
+  if (pool.length) {
+    quizCard = `
+      <div class="card">
+        <div id="timerBox"></div>
+        <p class="q" id="qText"></p>
+        <div id="choices"></div>
+        <div id="result"></div>
+      </div>`;
+  } else {
+    quizCard = `<div class="card"><div class="result info">ยังไม่มีคำถามสำหรับช่องนี้ — ซื้อได้ในราคาเต็ม</div></div>`;
+  }
+
+  screen.innerHTML = `
+    <div class="card">
+      ${zoneTag(sp.zone)}
+      <h2>${sp.name_th}</h2>
+      <p class="content" id="spContent"></p>
+      <p style="margin-top:10px;font-size:14px;">ราคา: <span class="price">${sp.price.toLocaleString()} TechCoin</span></p>
+    </div>
+    ${quizCard}
+    ${upgradeBtns}`;
+
+  // เนื้อหาอาจมีแท็ก HTML เป็นตัวอย่างในบทเรียน (เช่น <h1>) — ต้องใส่แบบ text ล้วน
+  document.getElementById("spContent").textContent =
+    sp.content_th.startsWith("📘") ? sp.content_th : "📘 " + sp.content_th;
+
+  if (!pool.length) return;
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  document.getElementById("qText").textContent = "Q: " + q.question_th;
+
+  renderQuiz(q, ok => {
+    logAnswer("buy", id, 1, ok);
+    document.getElementById("result").innerHTML = ok
+      ? `<div class="result win">🎉 ตอบถูก! ซื้อได้ในราคา <b>${discounted.toLocaleString()}</b> (ลด ${CONFIG.discount_percent}%)</div>`
+      : `<div class="result lose">ตอบผิด — ซื้อได้ในราคาเต็ม ${sp.price.toLocaleString()} TechCoin</div>`;
+  });
+}
+
+// ---------- หน้าอัปเกรดทรัพย์สิน (?space={id}&upgrade={level}) ----------
+function renderUpgrade(id, level) {
+  const sp = SPACES[id];
+  const name = CONFIG.upgrade_names[level];
+
+  if (!name) {
+    screen.innerHTML = `<div class="card"><h2>ระดับอัปเกรด "${level}" ไม่ถูกต้อง (ใช้ 1-3)</h2>
+      <button class="btn" onclick="location.search='?space=${id}'">กลับหน้าช่อง</button></div>`;
+    return;
+  }
+
+  const pool = QUESTIONS.filter(q => q.space_id === id && q.level === level);
+  const infoCard = `
+    <div class="card">
+      ${zoneTag(sp.zone)}
+      <h2>⬆ อัปเกรด: ${sp.name_th}</h2>
+      <p class="content">เป้าหมาย: ระดับ <b>${name}</b> · ค่าอัปเกรด <span class="price">${sp.upgrade_cost.toLocaleString()} TechCoin</span></p>
+      <p class="content">ค่าเช่าใหม่เมื่อสำเร็จ: <span class="price">${sp.rent[level].toLocaleString()} TechCoin</span></p>
+    </div>`;
+
+  if (!pool.length) {
+    screen.innerHTML = infoCard + `
+      <div class="card">
+        <div class="result info">ยังไม่มีคำถามระดับ ${name} (L${level}) สำหรับช่องนี้ในคลัง</div>
+        <button class="btn" onclick="location.search='?space=${id}'">กลับหน้าช่อง</button>
+      </div>`;
+    return;
+  }
+
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  screen.innerHTML = infoCard + `
+    <div class="card">
+      <div id="timerBox"></div>
+      <p class="q" id="qText"></p>
+      <div id="choices"></div>
+      <div id="result"></div>
+      <button class="btn ghost" onclick="location.search='?space=${id}'">กลับหน้าช่อง</button>
+    </div>`;
+  document.getElementById("qText").textContent = "Q: " + q.question_th;
+
+  renderQuiz(q, ok => {
+    logAnswer("upgrade", id, level, ok);
+    document.getElementById("result").innerHTML = ok
+      ? `<div class="result win">🎉 ตอบถูก! จ่าย <b>${sp.upgrade_cost.toLocaleString()}</b> เพื่ออัปเกรดเป็น "${name}" — ค่าเช่าใหม่ <b>${sp.rent[level].toLocaleString()}</b> TechCoin</div>`
+      : `<div class="result lose">ตอบผิด — อัปเกรดไม่สำเร็จ ลองใหม่ได้ในเทิร์นถัดไป</div>`;
+  });
+}
+
+// ---------- หน้าช่องเหตุการณ์ ----------
+function renderEvent(zone) {
+  const ev = weightedPick(EVENTS.filter(e => e.zone === zone));
+  let body = "";
+
+  if (ev.mechanic === "choice") {
+    const [bet, safe] = ev.effect.split("|");
+    const [, amount, mult] = bet.split(":");
+    body = `
+      <button class="choice" id="betBtn">🎲 เดิมพัน ${(+amount).toLocaleString()} — ลุ้นรับ ${mult}</button>
+      <button class="choice" id="safeBtn">✅ ${effectText(safe.split(":")[1] ?? safe.replace("safe:",""))}</button>
+      <div id="result"></div>`;
+  } else {
+    body = `<div class="result info">${effectText(ev.effect)}</div>`;
+  }
+
+  screen.innerHTML = `
+    <div class="card">
+      ${zoneTag(zone)}
+      <h2>🎰 ${ev.title_th}</h2>
+      ${ev.description_th ? `<p class="content" id="evDesc" style="margin-bottom:10px;"></p>` : ""}
+      ${body}
+      <button class="btn ghost" onclick="location.search='?space=event_${zone}'">สุ่มใหม่ (ทดสอบ)</button>
+      <button class="btn" onclick="renderMenu()">กลับเมนู</button>
+    </div>`;
+
+  if (ev.description_th) document.getElementById("evDesc").textContent = ev.description_th;
+
+  if (ev.mechanic === "choice") {
+    const [bet] = ev.effect.split("|");
+    const [, amount, mult] = bet.split(":");
+    document.getElementById("betBtn").onclick = () => {
+      const win = Math.random() < 0.5;
+      document.getElementById("result").innerHTML = win
+        ? `<div class="result win">🎉 ชนะเดิมพัน! รับ ${(amount * parseInt(mult.slice(1))).toLocaleString()} TechCoin</div>`
+        : `<div class="result lose">แพ้เดิมพัน เสีย ${(+amount).toLocaleString()} TechCoin</div>`;
+    };
+    document.getElementById("safeBtn").onclick = () => {
+      document.getElementById("result").innerHTML =
+        `<div class="result win">รับแบบชัวร์เรียบร้อย ✅</div>`;
+    };
+  }
+}
+
+// ---------- หน้าติดบั๊ก ----------
+function renderBugjam() {
+  const bug = BUGJAM[Math.floor(Math.random() * BUGJAM.length)];
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:var(--bad)">ติดบั๊ก (Bug Jam)</span>
+      <h2>แก้โจทย์ Debug เพื่อออก!</h2>
+      <div id="timerBox"></div>
+      <div class="code-box" id="bugCode"></div>
+      <p class="q" id="qText"></p>
+      <div id="choices"></div>
+      <div id="result"></div>
+    </div>`;
+  document.getElementById("bugCode").textContent = bug.code;
+  document.getElementById("qText").textContent = "Q: " + bug.question_th;
+
+  renderQuiz(bug, ok => {
+    logAnswer("bugjam", "bugjam", 0, ok);
+    document.getElementById("result").innerHTML = ok
+      ? `<div class="result win">🔓 Debug สำเร็จ! ออกจากติดบั๊กได้ฟรี</div>`
+      : `<div class="result lose">ยังแก้ไม่ได้ — อยู่ต่ออีก 1 เทิร์น หรือจ่ายค่าปรับ</div>`;
+  }, true);
+}
+
+// ---------- ระบบควิซ + จับเวลา (ใช้ร่วมกันทุกหน้า) ----------
+function renderQuiz(q, onDone, timeout_fail) {
+  const box = document.getElementById("choices");
+  let timer = null;
+
+  q.choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.textContent = String.fromCharCode(65 + i) + ". " + c;
+    b.onclick = () => {
+      clearInterval(timer);
+      [...box.children].forEach((el, j) => {
+        el.disabled = true;
+        if (j === q.answer) el.classList.add("correct");
+        else if (j === i) el.classList.add("wrong");
+      });
+      onDone(i === q.answer);
+    };
+    box.appendChild(b);
+  });
+
+  if (q.time_limit > 0) {
+    let t = q.time_limit;
+    const tb = document.getElementById("timerBox");
+    tb.innerHTML = `<div class="timer">⏱ ${t} วินาที</div>`;
+    timer = setInterval(() => {
+      t--;
+      tb.innerHTML = `<div class="timer ${t <= 5 ? "danger" : ""}">⏱ ${t} วินาที</div>`;
+      if (t <= 0) {
+        clearInterval(timer);
+        [...box.children].forEach(el => el.disabled = true);
+        onDone(false);
+      }
+    }, 1000);
+  }
+}
+
+// ---------- เมนูทดสอบ (แสดงเมื่อเปิดโดยไม่มี ?space=) ----------
+function renderMenu() {
+  const item = (id, label) =>
+    `<div class="menu-item" onclick="location.search='?space=${id}'">${label}<small>${id}</small></div>`;
+
+  let items = "";
+  for (const z of Object.keys(CONFIG.zone_names)) {
+    items += `<div class="menu-zone" style="--zc:${CONFIG.zone_colors[z]}">
+      <div class="menu-zone-head">${CONFIG.zone_names[z]}</div>`;
+    for (const [id, sp] of Object.entries(SPACES))
+      if (sp.zone === z) items += item(id, sp.name_th);
+    items += item("event_" + z, "🎰 การ์ดเหตุการณ์") + `</div>`;
+  }
+  items += `<div class="menu-zone" style="--zc:var(--bad)">
+    <div class="menu-zone-head">พิเศษ</div>
+    ${item("bugjam", "🐛 ติดบั๊ก (Bug Jam)")}
+  </div>`;
+
+  screen.innerHTML = `
+    <div class="card">
+      <h2>เมนูทดสอบระบบ</h2>
+      <p class="content">หน้านี้แสดงเมื่อเปิดโดยไม่ผ่าน QR — ใช้ทดสอบทุกช่องได้โดยไม่ต้องสแกน (หน้าอัปเกรดเข้าจากปุ่มในหน้าช่องทรัพย์สิน)</p>
+      ${items}
+    </div>`;
+}
+
+// ---------- ROUTER: อ่าน ?space= (+ &upgrade=) แล้วเลือกหน้า ----------
+function route() {
+  if (!param) renderMenu();
+  else if (param === "bugjam") renderBugjam();
+  else if (param.startsWith("event_")) renderEvent(param.replace("event_", ""));
+  else if (SPACES[param]) upgradeParam ? renderUpgrade(param, +upgradeParam) : renderSpace(param);
+  else screen.innerHTML = `<div class="card"><h2>ไม่พบรหัสช่อง "${param}"</h2><button class="btn" onclick="renderMenu()">กลับเมนู</button></div>`;
+}
+
+loadData();
+</script>
+</body>
+</html>
