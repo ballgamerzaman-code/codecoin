@@ -211,6 +211,58 @@
   },
   "questions": [
     {
+      "question_id": "coding_01_L1_01",
+      "space_id": "coding_01",
+      "level": 1,
+      "question_th": "HTML ทำหน้าที่อะไรบนหน้าเว็บ?",
+      "choices": [
+        "ตกแต่งสีสัน",
+        "เป็นโครงสร้างของหน้าเว็บ",
+        "คำนวณตัวเลข"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_01_L1_02",
+      "space_id": "coding_01",
+      "level": 1,
+      "question_th": "ถ้า HTML คือโครงบ้าน แล้ว CSS เปรียบเหมือนอะไร?",
+      "choices": [
+        "สีทาบ้านและการตกแต่ง",
+        "เสาเข็ม",
+        "กุญแจบ้าน"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_01_L2_01",
+      "space_id": "coding_01",
+      "level": 2,
+      "question_th": "แท็ก <h1> ใช้ทำอะไร?",
+      "choices": [
+        "แทรกรูปภาพ",
+        "สร้างตาราง",
+        "หัวข้อใหญ่"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "coding_01_L3_01",
+      "space_id": "coding_01",
+      "level": 3,
+      "question_th": "อยากเปลี่ยน 'สีตัวอักษร' บนเว็บ ควรไปแก้ที่ส่วนใด?",
+      "choices": [
+        "CSS",
+        "ไฟล์เพลง",
+        "เครื่องพิมพ์"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
       "question_id": "coding_02_L1_01",
       "space_id": "coding_02",
       "level": 1,
@@ -218,7 +270,7 @@
       "choices": [
         "echo(\"Hello\")",
         "print(\"Hello\")",
-        "console.log(\"Hello\")"
+        "วาดรูปงู"
       ],
       "answer": 1,
       "time_limit": 0
@@ -227,11 +279,11 @@
       "question_id": "coding_02_L1_02",
       "space_id": "coding_02",
       "level": 1,
-      "question_th": "Python แบ่งบล็อกโค้ดด้วยอะไร?",
+      "question_th": "ภาษา Python ตั้งชื่อตามอะไร?",
       "choices": [
-        "วงเล็บปีกกา { }",
-        "เครื่องหมาย ;",
-        "การย่อหน้า (indent)"
+        "งูหลามยักษ์",
+        "ชื่อลูกสาวผู้สร้าง",
+        "คณะตลก Monty Python"
       ],
       "answer": 2,
       "time_limit": 0
@@ -240,11 +292,11 @@
       "question_id": "coding_02_L2_01",
       "space_id": "coding_02",
       "level": 2,
-      "question_th": "ข้อใดคือ list ใน Python?",
+      "question_th": "Python ใช้อะไรแบ่งบล็อกโค้ด?",
       "choices": [
-        "x = [1, 2, 3]",
-        "x = (1, 2, 3)",
-        "x = {\"a\": 1}"
+        "การย่อหน้า (indent)",
+        "เครื่องหมาย ;",
+        "วงเล็บปีกกา { }"
       ],
       "answer": 0,
       "time_limit": 30
@@ -253,14 +305,325 @@
       "question_id": "coding_02_L3_01",
       "space_id": "coding_02",
       "level": 3,
-      "question_th": "ผลลัพธ์ของ print(len(\"CodeCoin\")) คืออะไร?",
+      "question_th": "จุดเด่นที่ทำให้คนนิยม Python คือข้อใด?",
       "choices": [
-        "7",
-        "8",
-        "9",
-        "Error"
+        "ทำงานได้เฉพาะบนมือถือ",
+        "อ่านง่าย เขียนเข้าใจง่าย",
+        "ไม่ต้องพิมพ์โค้ดเลย"
       ],
       "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "question_id": "coding_03_L1_01",
+      "space_id": "coding_03",
+      "level": 1,
+      "question_th": "JavaScript ทำให้หน้าเว็บทำอะไรได้?",
+      "choices": [
+        "โต้ตอบกับผู้ใช้ได้",
+        "พิมพ์งานลงกระดาษ",
+        "ประกอบคอมพิวเตอร์"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_03_L1_02",
+      "space_id": "coding_03",
+      "level": 1,
+      "question_th": "JavaScript ทำงานโดยตรงในที่ใด?",
+      "choices": [
+        "เครื่องซักผ้า",
+        "เครื่องคิดเลข",
+        "เบราว์เซอร์"
+      ],
+      "answer": 2,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_03_L2_01",
+      "space_id": "coding_03",
+      "level": 2,
+      "question_th": "ข้อใดคือตัวอย่างงานของ JavaScript?",
+      "choices": [
+        "กดปุ่มแล้วมีข้อความเด้งขึ้นมา",
+        "ต่อสายไฟเข้าเมนบอร์ด",
+        "รีดผ้า"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "coding_03_L3_01",
+      "space_id": "coding_03",
+      "level": 3,
+      "question_th": "คำสั่งแสดงผลใน console ของ JavaScript คือ?",
+      "choices": [
+        "print()",
+        "console.log()",
+        "SELECT"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "question_id": "coding_04_L1_01",
+      "space_id": "coding_04",
+      "level": 1,
+      "question_th": "SQL คือภาษาสำหรับจัดการอะไร?",
+      "choices": [
+        "รูปภาพ",
+        "ฐานข้อมูล",
+        "เสียงเพลง"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_04_L1_02",
+      "space_id": "coding_04",
+      "level": 1,
+      "question_th": "อยาก 'ดึงข้อมูล' มาดู ใช้คำสั่งใด?",
+      "choices": [
+        "SELECT",
+        "DELETE",
+        "COPY-PASTE"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "coding_04_L2_01",
+      "space_id": "coding_04",
+      "level": 2,
+      "question_th": "อยาก 'ลบ' ข้อมูลทิ้ง ใช้คำสั่งใด?",
+      "choices": [
+        "INSERT",
+        "UPDATE",
+        "DELETE"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "coding_04_L3_01",
+      "space_id": "coding_04",
+      "level": 3,
+      "question_th": "อยาก 'เพิ่มข้อมูลใหม่' เข้าไป ใช้คำสั่งใด?",
+      "choices": [
+        "INSERT",
+        "SELECT",
+        "DELETE"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_01_L1_01",
+      "space_id": "design_01",
+      "level": 1,
+      "question_th": "เครื่องมือที่ช่วยจับคู่สีเรียกว่าอะไร?",
+      "choices": [
+        "ตารางธาตุ",
+        "วงล้อสี (Color Wheel)",
+        "เข็มทิศสี"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_01_L1_02",
+      "space_id": "design_01",
+      "level": 1,
+      "question_th": "สีคู่ตรงข้าม (Complementary) ให้ความรู้สึกแบบใด?",
+      "choices": [
+        "โดดเด่น สะดุดตา",
+        "มองไม่เห็น",
+        "ง่วงนอน"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_01_L2_01",
+      "space_id": "design_01",
+      "level": 2,
+      "question_th": "สีที่อยู่ข้างเคียงกันในวงล้อสี ให้ความรู้สึกแบบใด?",
+      "choices": [
+        "ตัดกันรุนแรง",
+        "กลมกลืน",
+        "ร้อนแรง"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_01_L3_01",
+      "space_id": "design_01",
+      "level": 3,
+      "question_th": "อยากให้ปุ่ม 'สมัครเลย' เด่นจากพื้นหลัง ควรเลือกสีแบบใด?",
+      "choices": [
+        "สีเดียวกับพื้นหลังเป๊ะ ๆ",
+        "สีใสมองทะลุได้",
+        "สีคู่ตรงข้ามกับพื้นหลัง"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_02_L1_01",
+      "space_id": "design_02",
+      "level": 1,
+      "question_th": "หัวใจสำคัญของ Photoshop คือระบบอะไร?",
+      "choices": [
+        "Layer",
+        "Pivot Table",
+        "Socket"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_02_L1_02",
+      "space_id": "design_02",
+      "level": 1,
+      "question_th": "Photoshop เหมาะกับงานประเภทใด?",
+      "choices": [
+        "คำนวณภาษี",
+        "ประกอบคอมพิวเตอร์",
+        "ตกแต่งแก้ไขรูปภาพ"
+      ],
+      "answer": 2,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_02_L2_01",
+      "space_id": "design_02",
+      "level": 2,
+      "question_th": "ไฟล์ Photoshop ที่เก็บ Layer ไว้ครบคือนามสกุลใด?",
+      "choices": [
+        ".JPG",
+        ".PSD",
+        ".MP3"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_02_L3_01",
+      "space_id": "design_02",
+      "level": 3,
+      "question_th": "ข้อดีของการแยกงานเป็น Layer คืออะไร?",
+      "choices": [
+        "แก้ทีละส่วนได้โดยไม่กระทบส่วนอื่น",
+        "ทำให้ไฟล์หายเร็วขึ้น",
+        "ป้องกันไวรัส"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_03_L1_01",
+      "space_id": "design_03",
+      "level": 1,
+      "question_th": "จุดเด่นของภาพแบบเวกเตอร์ (Vector) คืออะไร?",
+      "choices": [
+        "ปิดเครื่องแล้วภาพหาย",
+        "ขยายใหญ่แค่ไหนก็ไม่แตก",
+        "ใช้ได้เฉพาะสีดำ"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_03_L1_02",
+      "space_id": "design_03",
+      "level": 1,
+      "question_th": "Illustrator เหมาะกับงานประเภทใดที่สุด?",
+      "choices": [
+        "ออกแบบโลโก้",
+        "ทำบัญชีรายรับรายจ่าย",
+        "ลงวินโดวส์"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_03_L2_01",
+      "space_id": "design_03",
+      "level": 2,
+      "question_th": "ภาพที่ซูมเข้าไปแล้ว 'แตกเป็นเม็ด ๆ' คือภาพแบบใด?",
+      "choices": [
+        "เวกเตอร์ (Vector)",
+        "สามมิติ",
+        "พิกเซล (Raster)"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_03_L3_01",
+      "space_id": "design_03",
+      "level": 3,
+      "question_th": "ไฟล์งานหลักของ Illustrator คือนามสกุลใด?",
+      "choices": [
+        ".AI",
+        ".XLSX",
+        ".EXE"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_04_L1_01",
+      "space_id": "design_04",
+      "level": 1,
+      "question_th": "จุดเด่นที่ทำให้ Canva ใช้ง่ายคืออะไร?",
+      "choices": [
+        "ต้องเขียนโค้ดเป็นก่อน",
+        "ใช้ได้เฉพาะบนกระดาษ",
+        "มี Template สำเร็จรูปให้เลือก"
+      ],
+      "answer": 2,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_04_L1_02",
+      "space_id": "design_04",
+      "level": 1,
+      "question_th": "Canva คือเครื่องมือประเภทใด?",
+      "choices": [
+        "ออกแบบสื่อออนไลน์",
+        "โปรแกรมบัญชี",
+        "เกมยิงปืน"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "design_04_L2_01",
+      "space_id": "design_04",
+      "level": 2,
+      "question_th": "ก่อนเริ่มออกแบบโพสต์ ควรเลือกอะไรให้ตรงกับแพลตฟอร์ม?",
+      "choices": [
+        "สีของเมาส์",
+        "ขนาดของชิ้นงาน",
+        "ยี่ห้อคอมพิวเตอร์"
+      ],
+      "answer": 1,
+      "time_limit": 30
+    },
+    {
+      "question_id": "design_04_L3_01",
+      "space_id": "design_04",
+      "level": 3,
+      "question_th": "โพสต์ IG แบบ 'สี่เหลี่ยมจัตุรัส' หมายความว่าอย่างไร?",
+      "choices": [
+        "กว้างมากกว่าสูง 2 เท่า",
+        "เป็นวงกลม",
+        "ด้านกว้างเท่ากับด้านสูง"
+      ],
+      "answer": 2,
       "time_limit": 30
     },
     {
@@ -271,7 +634,7 @@
       "choices": [
         "Ctrl+P",
         "Ctrl+S",
-        "Ctrl+V"
+        "Alt+F4"
       ],
       "answer": 1,
       "time_limit": 0
@@ -280,49 +643,404 @@
       "question_id": "office_01_L1_02",
       "space_id": "office_01",
       "level": 1,
-      "question_th": "การสร้างสารบัญอัตโนมัติต้องใช้อะไรก่อน?",
+      "question_th": "Word เหมาะกับงานประเภทใด?",
+      "choices": [
+        "พิมพ์เอกสารและรายงาน",
+        "ตัดต่อเพลง",
+        "แต่งรูปหน้าใส"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "office_01_L2_01",
+      "space_id": "office_01",
+      "level": 2,
+      "question_th": "อยากสร้างสารบัญอัตโนมัติ ต้องใช้อะไรกับหัวข้อก่อน?",
       "choices": [
         "ตัวหนา (Bold)",
-        "Style (Heading)",
-        "เปลี่ยนฟอนต์"
+        "ขีดเส้นใต้",
+        "Style (Heading)"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_01_L3_01",
+      "space_id": "office_01",
+      "level": 3,
+      "question_th": "ทำไมควรใช้ Heading แทนการทำตัวหนาเอง?",
+      "choices": [
+        "สร้างสารบัญอัตโนมัติได้",
+        "ทำให้ไฟล์เป็นความลับ",
+        "ประหยัดหมึกพิมพ์"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_02_L1_01",
+      "space_id": "office_02",
+      "level": 1,
+      "question_th": "สูตรใน Excel ต้องขึ้นต้นด้วยเครื่องหมายใดเสมอ?",
+      "choices": [
+        "# (ชาร์ป)",
+        "= (เท่ากับ)",
+        "? (คำถาม)"
       ],
       "answer": 1,
       "time_limit": 0
     },
     {
-      "question_id": "design_02_L1_01",
-      "space_id": "design_02",
+      "question_id": "office_02_L1_02",
+      "space_id": "office_02",
       "level": 1,
-      "question_th": "ไฟล์ Photoshop ที่เก็บ Layer ครบคือนามสกุลใด?",
+      "question_th": "สูตรหา 'ผลรวม' ใน Excel คือสูตรใด?",
       "choices": [
-        ".JPG",
-        ".PSD",
-        ".PNG"
+        "SUM",
+        "RUN",
+        "JUMP"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "office_02_L2_01",
+      "space_id": "office_02",
+      "level": 2,
+      "question_th": "สูตรหา 'ค่าเฉลี่ย' ใน Excel คือสูตรใด?",
+      "choices": [
+        "COUNT",
+        "SUM",
+        "AVERAGE"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_02_L3_01",
+      "space_id": "office_02",
+      "level": 3,
+      "question_th": "สูตร =SUM(A1:A10) หมายถึงอะไร?",
+      "choices": [
+        "รวมค่าตั้งแต่ช่อง A1 ถึง A10",
+        "ลบช่อง A1 ทิ้ง 10 ครั้ง",
+        "ระบายสีช่อง A1"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_03_L1_01",
+      "space_id": "office_03",
+      "level": 1,
+      "question_th": "Pivot Table ช่วยทำอะไรได้?",
+      "choices": [
+        "สรุปข้อมูลจำนวนมากได้รวดเร็ว",
+        "วาดการ์ตูน",
+        "ซ่อมคอมพิวเตอร์"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "office_03_L1_02",
+      "space_id": "office_03",
+      "level": 1,
+      "question_th": "ข้อดีของ Pivot Table คืออะไร?",
+      "choices": [
+        "ทำให้คอมเร็วขึ้น",
+        "สรุปข้อมูลได้โดยไม่ต้องเขียนสูตรเอง",
+        "กันไวรัสได้"
       ],
       "answer": 1,
       "time_limit": 0
+    },
+    {
+      "question_id": "office_03_L2_01",
+      "space_id": "office_03",
+      "level": 2,
+      "question_th": "Pivot Table สร้างได้จากเมนูใด?",
+      "choices": [
+        "Insert",
+        "Delete",
+        "Shut Down"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_03_L3_01",
+      "space_id": "office_03",
+      "level": 3,
+      "question_th": "งานแบบใดเหมาะกับ Pivot Table ที่สุด?",
+      "choices": [
+        "แต่งรูปโปรไฟล์",
+        "เขียนหน้าเว็บ",
+        "สรุปยอดขายรายเดือนจากข้อมูลดิบเป็นพันแถว"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_04_L1_01",
+      "space_id": "office_04",
+      "level": 1,
+      "question_th": "สไลด์นำเสนอที่ดีควรเป็นแบบใด?",
+      "choices": [
+        "อัดข้อความให้แน่นทุกบรรทัด",
+        "ข้อความน้อย เน้นภาพและคีย์เวิร์ด",
+        "ใช้ฟอนต์เล็กที่สุดเท่าที่ทำได้"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "office_04_L1_02",
+      "space_id": "office_04",
+      "level": 1,
+      "question_th": "PowerPoint ใช้ทำอะไรเป็นหลัก?",
+      "choices": [
+        "นำเสนองาน",
+        "คำนวณสูตร",
+        "แต่งเพลง"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "office_04_L2_01",
+      "space_id": "office_04",
+      "level": 2,
+      "question_th": "คีย์ลัดที่ใช้เริ่มพรีเซนต์คือปุ่มใด?",
+      "choices": [
+        "Esc",
+        "Delete",
+        "F5"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "office_04_L3_01",
+      "space_id": "office_04",
+      "level": 3,
+      "question_th": "กฎ 6x6 ของการทำสไลด์หมายถึงอะไร?",
+      "choices": [
+        "ไม่เกิน 6 บรรทัดต่อสไลด์ และ 6 คำต่อบรรทัด",
+        "ต้องใช้ 6 สีใน 6 สไลด์",
+        "ต้องพรีเซนต์ให้ครบ 66 นาที"
+      ],
+      "answer": 0,
+      "time_limit": 30
     },
     {
       "question_id": "hardware_01_L1_01",
+      "space_id": "hardware_01",
+      "level": 1,
+      "question_th": "CPU เปรียบเสมือนอวัยวะใดของคอมพิวเตอร์?",
+      "choices": [
+        "หัวใจ",
+        "สมอง",
+        "กระเพาะ"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_01_L1_02",
       "space_id": "hardware_01",
       "level": 1,
       "question_th": "CPU ติดตั้งลงบนส่วนใดของเมนบอร์ด?",
       "choices": [
         "Socket",
         "RAM Slot",
-        "SATA Port"
+        "ที่วางแก้วน้ำ"
       ],
       "answer": 0,
       "time_limit": 0
     },
     {
-      "question_id": "DRAFT_ตัวอย่างแถวร่าง",
-      "space_id": "coding_01",
+      "question_id": "hardware_01_L2_01",
+      "space_id": "hardware_01",
+      "level": 2,
+      "question_th": "ก่อนซื้อ CPU กับเมนบอร์ด ต้องเช็คอะไรให้ตรงกัน?",
+      "choices": [
+        "สีของกล่อง",
+        "ยี่ห้อจอภาพ",
+        "Socket"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_01_L3_01",
+      "space_id": "hardware_01",
+      "level": 3,
+      "question_th": "ถ้า Socket ของ CPU กับเมนบอร์ดไม่ตรงกัน จะเกิดอะไรขึ้น?",
+      "choices": [
+        "ติดตั้งไม่ได้",
+        "เครื่องเร็วขึ้น 2 เท่า",
+        "ไม่มีผลอะไรเลย"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_02_L1_01",
+      "space_id": "hardware_02",
       "level": 1,
-      "question_th": "DRAFT ใส่โจทย์ที่ยังไม่เสร็จแบบนี้ ระบบจะข้ามให้",
-      "choices": [],
+      "question_th": "เมื่อปิดเครื่อง ข้อมูลใน RAM จะเป็นอย่างไร?",
+      "choices": [
+        "ถูกเก็บถาวร",
+        "หายไป",
+        "กลายเป็นไฟล์เพลง"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_02_L1_02",
+      "space_id": "hardware_02",
+      "level": 1,
+      "question_th": "อุปกรณ์ที่เก็บข้อมูลแบบ 'ถาวร' คือข้อใด?",
+      "choices": [
+        "SSD / HDD",
+        "RAM",
+        "พัดลมเคส"
+      ],
       "answer": 0,
       "time_limit": 0
+    },
+    {
+      "question_id": "hardware_02_L2_01",
+      "space_id": "hardware_02",
+      "level": 2,
+      "question_th": "ทำไม SSD ถึงเร็วกว่า HDD?",
+      "choices": [
+        "มีสีสวยกว่า",
+        "ราคาถูกกว่า",
+        "ไม่มีจานหมุนข้างใน"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_02_L3_01",
+      "space_id": "hardware_02",
+      "level": 3,
+      "question_th": "RAM ทำหน้าที่อะไร?",
+      "choices": [
+        "หน่วยความจำชั่วคราวขณะเครื่องทำงาน",
+        "จ่ายไฟให้ทุกชิ้นส่วน",
+        "แสดงภาพขึ้นจอ"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_03_L1_01",
+      "space_id": "hardware_03",
+      "level": 1,
+      "question_th": "Power Supply (PSU) ทำหน้าที่อะไร?",
+      "choices": [
+        "เก็บไฟล์งาน",
+        "จ่ายไฟให้ทุกชิ้นส่วนในเครื่อง",
+        "เป่าลมเย็น"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_03_L1_02",
+      "space_id": "hardware_03",
+      "level": 1,
+      "question_th": "การเลือกซื้อ PSU ต้องดูอะไรเป็นหลัก?",
+      "choices": [
+        "กำลังวัตต์พอกับอุปกรณ์",
+        "น้ำหนักเบาที่สุด",
+        "มีไฟ RGB สวย ๆ"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_03_L2_01",
+      "space_id": "hardware_03",
+      "level": 2,
+      "question_th": "ถ้าต่อสายไฟผิดช่อง ผลที่พบบ่อยคืออะไร?",
+      "choices": [
+        "เครื่องแรงขึ้น",
+        "ได้ Wi-Fi ฟรี",
+        "เครื่องไม่ติด"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_03_L3_01",
+      "space_id": "hardware_03",
+      "level": 3,
+      "question_th": "สายไฟเส้นใหญ่ที่สุดที่เสียบเข้าเมนบอร์ดโดยตรงคือสายใด?",
+      "choices": [
+        "สาย 24-pin",
+        "สาย LAN",
+        "สายหูฟัง"
+      ],
+      "answer": 0,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_04_L1_01",
+      "space_id": "hardware_04",
+      "level": 1,
+      "question_th": "ก่อนใส่เมนบอร์ดลงเคส นิยมติดตั้งอะไรลงบนเมนบอร์ดก่อน?",
+      "choices": [
+        "การ์ดจอ",
+        "CPU และ RAM",
+        "สติกเกอร์"
+      ],
+      "answer": 1,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_04_L1_02",
+      "space_id": "hardware_04",
+      "level": 1,
+      "question_th": "ขั้นตอน 'สุดท้าย' หลังประกอบเครื่องเสร็จคืออะไร?",
+      "choices": [
+        "ลงวินโดวส์",
+        "ถอด CPU ออกมาเช็ด",
+        "ทาสีเคสใหม่"
+      ],
+      "answer": 0,
+      "time_limit": 0
+    },
+    {
+      "question_id": "hardware_04_L2_01",
+      "space_id": "hardware_04",
+      "level": 2,
+      "question_th": "การลงวินโดวส์นิยมทำผ่านอุปกรณ์ใด?",
+      "choices": [
+        "แผ่นเสียง",
+        "สายหูฟัง",
+        "USB Boot"
+      ],
+      "answer": 2,
+      "time_limit": 30
+    },
+    {
+      "question_id": "hardware_04_L3_01",
+      "space_id": "hardware_04",
+      "level": 3,
+      "question_th": "ทำไมจึงติด CPU + RAM นอกเคสก่อน?",
+      "choices": [
+        "พื้นที่กว้าง ทำงานง่ายกว่า",
+        "ทำให้เครื่องแรงขึ้น",
+        "เป็นกฎหมายบังคับ"
+      ],
+      "answer": 0,
+      "time_limit": 30
     }
   ],
   "events": [

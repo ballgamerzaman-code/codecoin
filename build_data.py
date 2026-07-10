@@ -41,13 +41,15 @@ def as_int(v, default=0):
 
 
 def choices_of(row, letters):
-    """รวม choice_a..d เฉพาะช่องที่มีข้อมูล"""
-    out = []
+    """รวม choice_a..d เฉพาะช่องที่มีข้อมูล คืน (รายการตัวเลือก, ตำแหน่งใหม่ของแต่ละตัวอักษร)
+    ตัวอย่าง: choice_b ว่าง → letter_index ของ 'c' จะเลื่อนมาเป็น 1 ให้เฉลยไม่เพี้ยน"""
+    out, letter_index = [], {}
     for c in letters:
         v = str(cell(row.get(f"choice_{c}"))).strip()
         if v and v.lower() != "nan":
+            letter_index[c] = len(out)
             out.append(v)
-    return out
+    return out, letter_index
 
 
 def fix_newlines(s):
@@ -90,13 +92,18 @@ def main():
         sid = str(cell(r["space_id"])).strip()
         if not is_draft and sid not in spaces:
             warns.append(f"questions: {cell(r['question_id'])} อ้าง space_id '{sid}' ที่ไม่มีในชีต spaces")
+        choices, letter_index = choices_of(r, "abcd")
+        if not is_draft and ans not in letter_index:
+            warns.append(f"questions: {cell(r['question_id'])} เฉลย '{ans}' ชี้ตัวเลือกที่ว่าง — ข้ามแถวนี้ "
+                         f"(เช็คว่าเซลล์นั้นโดน Excel ตีความเป็นสูตรหรือไม่)")
+            continue
         questions.append({
             "question_id": str(cell(r["question_id"])).strip(),
             "space_id": sid,
             "level": as_int(r["level"], 1),
             "question_th": qth,
-            "choices": choices_of(r, "abcd"),
-            "answer": ANSWER_INDEX.get(ans, 0),
+            "choices": choices,
+            "answer": letter_index.get(ans, 0),
             "time_limit": as_int(r["time_limit"]),
         })
 
@@ -125,12 +132,16 @@ def main():
         if not qth:
             continue
         ans = str(cell(r["answer"])).strip().lower()
+        choices, letter_index = choices_of(r, "abc")
+        if ans not in letter_index:
+            warns.append(f"bugjam: {cell(r['bug_id'])} เฉลย '{ans}' ชี้ตัวเลือกที่ว่าง — ข้ามแถวนี้")
+            continue
         bugjam.append({
             "bug_id": str(cell(r["bug_id"])).strip(),
             "code": fix_newlines(cell(r["code_snippet"])),
             "question_th": qth,
-            "choices": choices_of(r, "abc"),
-            "answer": ANSWER_INDEX.get(ans, 0),
+            "choices": choices,
+            "answer": letter_index[ans],
             "time_limit": as_int(r["time_limit"]),
         })
 
