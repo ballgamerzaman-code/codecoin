@@ -1126,6 +1126,15 @@
       "effect": "-600"
     },
     {
+      "event_id": "ev_office_05",
+      "zone": "office",
+      "mechanic": "choice",
+      "weight": 1,
+      "title_th": "คู่แข่งทาบทามซื้อตัว!",
+      "description_th": "จะเสี่ยงย้ายไปบริษัทใหม่ หรือรับโบนัสรั้งตัวแบบชัวร์ ๆ?",
+      "effect": "bet:1000:x3|safe:+300"
+    },
+    {
       "event_id": "ev_design_01",
       "zone": "design",
       "mechanic": "simple",
@@ -1162,6 +1171,15 @@
       "effect": "collect:200"
     },
     {
+      "event_id": "ev_design_05",
+      "zone": "design",
+      "mechanic": "choice",
+      "weight": 1,
+      "title_th": "งานด่วนจากลูกค้ารายใหญ่",
+      "description_th": "เดดไลน์โหดมาก จะรับงานเสี่ยงรวย หรือคิดค่าปรึกษาเบา ๆ แล้วปล่อยผ่าน?",
+      "effect": "bet:800:x3|safe:+300"
+    },
+    {
       "event_id": "ev_hardware_01",
       "zone": "hardware",
       "mechanic": "simple",
@@ -1196,6 +1214,15 @@
       "title_th": "ได้ของแถมจากงาน Computex",
       "description_th": "จะเก็งกำไรหรือขายทิ้งเลย?",
       "effect": "bet:1000:x3|safe:+300"
+    },
+    {
+      "event_id": "ev_hardware_05",
+      "zone": "hardware",
+      "mechanic": "simple",
+      "weight": 2,
+      "title_th": "เพื่อนฝากจัดสเปกคอมเล่นเกม",
+      "description_th": "จัดสเปกคุ้มจนเพื่อนปลื้ม ได้ค่านายหน้า",
+      "effect": "+800"
     }
   ],
   "bugjam": [
