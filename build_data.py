@@ -136,6 +136,8 @@ def main():
         if ans not in letter_index:
             warns.append(f"bugjam: {cell(r['bug_id'])} เฉลย '{ans}' ชี้ตัวเลือกที่ว่าง — ข้ามแถวนี้")
             continue
+        # difficulty/hint เป็นคอลัมน์ใหม่ — ไฟล์เก่าที่ไม่มีคอลัมน์นี้ให้ถือเป็น easy/ไม่มี hint
+        difficulty = str(cell(r.get("difficulty"), "easy")).strip().lower() or "easy"
         bugjam.append({
             "bug_id": str(cell(r["bug_id"])).strip(),
             "code": fix_newlines(cell(r["code_snippet"])),
@@ -143,6 +145,8 @@ def main():
             "choices": choices,
             "answer": letter_index[ans],
             "time_limit": as_int(r["time_limit"]),
+            "difficulty": difficulty if difficulty in ("easy", "hard") else "easy",
+            "hint": str(cell(r.get("hint"))).strip(),
         })
 
     data = {"spaces": spaces, "questions": questions, "events": events, "bugjam": bugjam}
