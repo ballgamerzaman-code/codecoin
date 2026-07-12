@@ -119,6 +119,16 @@
   .bet-btn.active small { color:#FDE68A; }
   .bet-btn:disabled { opacity:.55; cursor:default; }
 
+  /* ---------- ปุ่มเลือกผู้ชนะ (event แบบ speed) ---------- */
+  .speed-players { display:flex; gap:8px; margin:4px 0 6px; }
+  .speed-player {
+    flex:1; background:#0B241B; border:1px solid var(--gold); border-radius:10px;
+    color:var(--gold); padding:12px 4px; text-align:center; cursor:pointer;
+    font-family:'Kanit',sans-serif; font-size:14px;
+  }
+  .speed-player:hover { background:#14200E; }
+  .speed-player:disabled { opacity:.5; cursor:default; }
+
   /* ---------- ปุ่ม mute ลอยมุมขวาล่าง ---------- */
   .mute-btn {
     position:fixed; right:14px; bottom:14px; z-index:70;
@@ -153,7 +163,7 @@
 <div class="app">
   <header>
     <h1>CodeCoin</h1>
-    <p>QR SYSTEM — PCB EDITION REV 1.3</p>
+    <p>QR SYSTEM — PCB EDITION REV 1.5</p>
   </header>
   <div id="dataStatus"></div>
   <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
@@ -242,6 +252,10 @@ const CONFIG = {
   zone_names: { coding:"Coding Avenue", design:"Design District", office:"Office Street", hardware:"Hardware Town" },
   zone_colors: { coding:"var(--coding)", design:"var(--design)", office:"var(--office)", hardware:"var(--hardware)" },
   upgrade_names: { 1:"มือใหม่", 2:"ชำนาญ", 3:"ผู้เชี่ยวชาญ" }, // ชื่อระดับ rent[1..3]
+  speed_time_limit: 15,   // วินาทีของ event แบบ speed (แข่งตอบเร็ว)
+  speed_players: 4,       // จำนวนปุ่มผู้เล่นบนหน้า speed
+  bugjam_bonus_hard: 300,        // โบนัสตอบถูกโจทย์ Bug Jam ระดับยาก
+  bugjam_bonus_hard_hinted: 150, // โบนัสระดับยากเมื่อกดดู hint แล้ว
 };
 
 /* =====================================================================
@@ -532,6 +546,9 @@ function renderUpgrade(id, level) {
 // ---------- หน้าช่องเหตุการณ์ ----------
 function renderEvent(zone) {
   const ev = weightedPick(EVENTS.filter(e => e.zone === zone));
+
+  if (ev.mechanic === "speed") { renderSpeedEvent(ev, zone); return; }
+
   let body = "";
 
   if (ev.mechanic === "choice") {
@@ -573,27 +590,160 @@ function renderEvent(zone) {
   }
 }
 
-// ---------- หน้าติดบั๊ก ----------
+// ---------- event แบบ speed: แข่งตอบเร็วรอบโต๊ะ ----------
+// ไม่ใช่ multiplayer จริง — ทุกคนดูจอเดียวกัน แข่งตอบปากเปล่า แล้วคนถือมือถือ
+// กดหมายเลขผู้เล่นที่วงตัดสินว่าตอบถูกไวสุด (state อยู่ในฟังก์ชันนี้ ใช้ครั้งเดียวจบ)
+function renderSpeedEvent(ev, zone) {
+  const q = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+
+  screen.innerHTML = `
+    <div class="card">
+      ${zoneTag(zone)}
+      <h2>⚡ ${ev.title_th}</h2>
+      ${ev.description_th ? `<p class="content" id="evDesc" style="margin-bottom:8px;"></p>` : ""}
+      <div class="result info" style="margin-bottom:12px;">แข่งตอบเร็ว! ทุกคนตอบพร้อมกันด้วยปากเปล่า —
+        คนที่ตอบถูกและไวที่สุด${effectText(ev.effect)}</div>
+      <div id="timerBox"></div>
+      <p class="q" id="qText"></p>
+      <div id="choices"></div>
+      <p class="q" style="margin-top:12px;">ใครตอบถูกไวสุด? (วงตัดสินเอง แล้วกดหมายเลข)</p>
+      <div class="speed-players" id="speedPlayers"></div>
+      <div id="result"></div>
+      <button class="btn ghost" onclick="location.search='?space=event_${zone}'">สุ่มใหม่ (ทดสอบ)</button>
+      <button class="btn" id="speedBack">กลับเมนู</button>
+    </div>`;
+
+  if (ev.description_th) document.getElementById("evDesc").textContent = ev.description_th;
+  // คำถาม/ตัวเลือกอาจมีแท็ก HTML เป็นตัวอย่างบทเรียน — ใส่แบบ text ล้วนเสมอ
+  document.getElementById("qText").textContent = "Q: " + q.question_th;
+  const box = document.getElementById("choices");
+  q.choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.disabled = true;  // โชว์ให้อ่านอย่างเดียว — ไม่มีการกดตอบบนจอ
+    b.textContent = String.fromCharCode(65 + i) + ". " + c;
+    box.appendChild(b);
+  });
+
+  const wrap = document.getElementById("speedPlayers");
+  let timer = null;
+
+  // กลับเมนูโดยไม่ reload หน้า — ต้องหยุด timer ก่อน ไม่งั้นเสียงติ๊ก/บัซเซอร์ตามไปหน้าเมนู
+  document.getElementById("speedBack").onclick = () => { clearInterval(timer); renderMenu(); };
+
+  // จบรอบ: winner = เลขผู้เล่น หรือ null = หมดเวลา (กดย้อนหลังไม่ได้ — ปุ่มถูก disable)
+  const finish = winner => {
+    clearInterval(timer);
+    [...wrap.children].forEach(b => b.disabled = true);
+    box.children[q.answer].classList.add("correct");  // เฉลยให้วงเห็น
+    if (winner) {
+      SFX.correct(); flash("green");
+      logAnswer("speed", ev.event_id || "event_" + zone, 0, true);
+      document.getElementById("result").innerHTML =
+        `<div class="result win">⚡ ผู้เล่น ${winner} ตอบไวสุด! ${effectText(ev.effect)}</div>`;
+    } else {
+      document.getElementById("result").innerHTML =
+        `<div class="result lose">⏱ หมดเวลา — รอบนี้ไม่มีใครได้รางวัล</div>`;
+    }
+  };
+
+  for (let p = 1; p <= CONFIG.speed_players; p++) {
+    const b = document.createElement("button");
+    b.className = "speed-player";
+    b.textContent = "ผู้เล่น " + p;
+    b.onclick = () => finish(p);
+    wrap.appendChild(b);
+  }
+
+  // timer แบบเดียวกับ renderQuiz (ติ๊กเร่งเมื่อเหลือ ≤5 วิ, หมดเวลา = buzzer + แฟลชแดง)
+  let t = CONFIG.speed_time_limit;
+  const tb = document.getElementById("timerBox");
+  tb.innerHTML = `<div class="timer">⏱ ${t} วินาที</div>`;
+  timer = setInterval(() => {
+    t--;
+    tb.innerHTML = `<div class="timer ${t <= 5 ? "danger" : ""}">⏱ ${t} วินาที</div>`;
+    if (t <= 0) {
+      SFX.buzzer();
+      flash("red");
+      finish(null);
+    } else {
+      SFX.tick(t <= 5);
+    }
+  }, 1000);
+}
+
+// ---------- หน้าติดบั๊ก: เลือกระดับก่อน แล้วค่อยสุ่มโจทย์ ----------
 function renderBugjam() {
-  const bug = BUGJAM[Math.floor(Math.random() * BUGJAM.length)];
+  // แถวเก่าที่ไม่มี difficulty ถือเป็น easy (ข้อมูล fallback ในไฟล์นี้ก็เข้าเคสนี้)
+  const hardPool = BUGJAM.filter(b => b.difficulty === "hard");
+
   screen.innerHTML = `
     <div class="card">
       <span class="zone-tag" style="background:var(--bad)">ติดบั๊ก (Bug Jam)</span>
+      <h2>แก้โจทย์ Debug เพื่อออก!</h2>
+      <p class="content" style="margin-bottom:10px;">เลือกระดับโจทย์:</p>
+      <div class="bet-row">
+        <button class="bet-btn active" id="diffEasy">ง่าย
+          <small>ตอบถูก ออกจากติดบั๊กฟรี</small></button>
+        <button class="bet-btn" id="diffHard" ${hardPool.length ? "" : "disabled"}>ยาก 💎
+          <small>${hardPool.length
+            ? `ตอบถูก ออกฟรี + โบนัส ${CONFIG.bugjam_bonus_hard} TechCoin`
+            : "ยังไม่มีโจทย์ระดับนี้"}</small></button>
+      </div>
+    </div>`;
+
+  document.getElementById("diffEasy").onclick = () => renderBugQuestion("easy");
+  if (hardPool.length)
+    document.getElementById("diffHard").onclick = () => renderBugQuestion("hard");
+}
+
+// โจทย์ Bug Jam หนึ่งข้อตามระดับที่เลือก — state (ระดับ/กด hint แล้วหรือยัง)
+// เป็นตัวแปรในฟังก์ชันนี้ ใช้ครั้งเดียวจบต่อโจทย์ ไม่ persist
+function renderBugQuestion(diff) {
+  const pool = BUGJAM.filter(b => (b.difficulty || "easy") === diff);
+  const bug = pool[Math.floor(Math.random() * pool.length)];
+  const isHard = diff === "hard";
+  let hintUsed = false;
+
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:var(--bad)">ติดบั๊ก (Bug Jam) · ระดับ${isHard ? "ยาก 💎" : "ง่าย"}</span>
       <h2>แก้โจทย์ Debug เพื่อออก!</h2>
       <div id="timerBox"></div>
       <div class="code-box" id="bugCode"></div>
       <p class="q" id="qText"></p>
       <div id="choices"></div>
+      ${bug.hint ? `
+        <button class="btn ghost" id="hintBtn">💡 ดู hint${isHard
+          ? ` (โบนัสจะลดเหลือ ${CONFIG.bugjam_bonus_hard_hinted})` : ""}</button>
+        <div class="result info" id="hintText" style="display:none;"></div>` : ""}
       <div id="result"></div>
     </div>`;
   document.getElementById("bugCode").textContent = bug.code;
   document.getElementById("qText").textContent = "Q: " + bug.question_th;
 
+  const hintBtn = document.getElementById("hintBtn");
+  if (hintBtn) hintBtn.onclick = () => {
+    hintUsed = true;
+    hintBtn.disabled = true;  // กดได้ครั้งเดียวต่อโจทย์
+    const ht = document.getElementById("hintText");
+    ht.textContent = "💡 " + bug.hint;
+    ht.style.display = "block";
+  };
+
   renderQuiz(bug, (ok, timedOut) => {
-    logAnswer("bugjam", "bugjam", 0, ok);
-    document.getElementById("result").innerHTML = ok
-      ? `<div class="result win">🔓 Debug สำเร็จ! ออกจากติดบั๊กได้ฟรี</div>`
-      : `<div class="result lose">ยังแก้ไม่ได้ — อยู่ต่ออีก 1 เทิร์น หรือจ่ายค่าปรับ</div>`;
+    if (hintBtn) hintBtn.disabled = true;
+    logAnswer(isHard ? "bugjam_hard" : "bugjam", bug.bug_id || "bugjam", 0, ok);
+    let msg;
+    if (ok && isHard) {
+      const bonus = hintUsed ? CONFIG.bugjam_bonus_hard_hinted : CONFIG.bugjam_bonus_hard;
+      msg = `<div class="result win">🔓💎 Debug สำเร็จ! ออกจากติดบั๊กฟรี + โบนัส ${bonus.toLocaleString()} TechCoin</div>`;
+    } else if (ok) {
+      msg = `<div class="result win">🔓 Debug สำเร็จ! ออกจากติดบั๊กได้ฟรี</div>`;
+    } else {
+      msg = `<div class="result lose">ยังแก้ไม่ได้ — อยู่ต่ออีก 1 เทิร์น หรือจ่ายค่าปรับ</div>`;
+    }
+    document.getElementById("result").innerHTML = msg;
 
     if (ok) { SFX.correct(); flash("green"); }
     else if (!timedOut) { SFX.wrong(); flash("red"); }
