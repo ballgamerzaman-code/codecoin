@@ -1066,7 +1066,7 @@
       "event_id": "ev_coding_03",
       "zone": "coding",
       "mechanic": "choice",
-      "weight": 1,
+      "weight": 2,
       "title_th": "เข้ารอบชิง Hackathon!",
       "description_th": "จะทุ่มสุดตัวหรือรับรางวัลปลอบใจ?",
       "effect": "bet:1000:x3|safe:+300"
@@ -1129,7 +1129,7 @@
       "event_id": "ev_office_05",
       "zone": "office",
       "mechanic": "choice",
-      "weight": 1,
+      "weight": 2,
       "title_th": "คู่แข่งทาบทามซื้อตัว!",
       "description_th": "จะเสี่ยงย้ายไปบริษัทใหม่ หรือรับโบนัสรั้งตัวแบบชัวร์ ๆ?",
       "effect": "bet:1000:x3|safe:+300"
@@ -1174,7 +1174,7 @@
       "event_id": "ev_design_05",
       "zone": "design",
       "mechanic": "choice",
-      "weight": 1,
+      "weight": 2,
       "title_th": "งานด่วนจากลูกค้ารายใหญ่",
       "description_th": "เดดไลน์โหดมาก จะรับงานเสี่ยงรวย หรือคิดค่าปรึกษาเบา ๆ แล้วปล่อยผ่าน?",
       "effect": "bet:800:x3|safe:+300"
@@ -1210,7 +1210,7 @@
       "event_id": "ev_hardware_04",
       "zone": "hardware",
       "mechanic": "choice",
-      "weight": 1,
+      "weight": 2,
       "title_th": "ได้ของแถมจากงาน Computex",
       "description_th": "จะเก็งกำไรหรือขายทิ้งเลย?",
       "effect": "bet:1000:x3|safe:+300"
