@@ -208,7 +208,7 @@
 <div class="app">
   <header>
     <h1>CodeCoin</h1>
-    <p>QR SYSTEM — PCB EDITION REV 1.7</p>
+    <p>QR SYSTEM — PCB EDITION REV 1.8</p>
   </header>
   <div id="dataStatus"></div>
   <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
@@ -403,20 +403,34 @@ function logAnswer(kind, id, level, correct, extra) {
    - เสียงติ๊กจาก timer จะเงียบไปเองจนกว่าผู้เล่นแตะจอครั้งแรก
    ===================================================================== */
 const SFX = (() => {
-  let ctx = null, muted = false;
+  let ctx = null, muted = false, warmed = false;
+  const AC = window.AudioContext || window.webkitAudioContext;
 
+  // ปลุก AudioContext จาก user gesture — สร้าง + resume + เล่น buffer เงียบให้ฮาร์ดแวร์ตื่น
+  // ผูกหลาย event และคอยลองจนกว่าจะ running จริง (มือถือ resume เป็น async ครั้งเดียวมักไม่พอ)
+  const UNLOCK_EVENTS = ["pointerdown", "touchstart", "touchend", "click", "keydown"];
   function unlock() {
     try {
-      ctx ??= new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state === "suspended") ctx.resume();
+      if (!ctx && AC) ctx = new AC();
+      if (!ctx) return;
+      if (ctx.state !== "running") ctx.resume();
+      if (!warmed) {  // silent buffer — เคล็ดปลุกเสียง iOS ให้พร้อมก่อนโน้ตจริง
+        const b = ctx.createBuffer(1, 1, 22050);
+        const s = ctx.createBufferSource();
+        s.buffer = b; s.connect(ctx.destination); s.start(0);
+        warmed = true;
+      }
+      if (ctx.state === "running")  // ปลุกสำเร็จแล้ว เลิกดักฟัง
+        UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, unlock));
     } catch (e) {}
   }
-  document.addEventListener("pointerdown", unlock, { once: true });
+  UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, unlock, { passive: true }));
 
   // เล่นโน้ตเดียว: envelope ขึ้นเร็ว-จางลง กันเสียงคลิกป๊อก
   function tone(freq, dur, { type = "sine", vol = 0.15, when = 0 } = {}) {
-    if (muted || !ctx || ctx.state !== "running") return;
-    try {
+    if (muted || !ctx) return;                       // ก่อนแตะจอครั้งแรก — เงียบ (กัน autoplay)
+    if (ctx.state !== "running") { try { ctx.resume(); } catch (e) {} }  // เร่งปลุก แล้ว schedule ต่อ
+    try {                                            // โน้ตที่ schedule ตอน suspend จะดังเองเมื่อ resume
       const t0 = ctx.currentTime + when;
       const o = ctx.createOscillator(), g = ctx.createGain();
       o.type = type; o.frequency.value = freq;
