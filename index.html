@@ -119,6 +119,51 @@
   .bet-btn.active small { color:#FDE68A; }
   .bet-btn:disabled { opacity:.55; cursor:default; }
 
+  /* ---------- กรอบวงล้อสุ่มผลแก้บั๊ก (เลนมั่นใจ+ผิด) ---------- */
+  .roulette-frame {
+    background:#05100C; border:1px solid var(--line); border-radius:10px;
+    padding:13px 12px; margin-top:10px; text-align:center;
+    font-family:'Kanit',sans-serif; font-size:15px; color:#A7F3D0;
+    animation:roulettePulse .12s ease-out;
+  }
+  .roulette-frame.final {
+    border-color:var(--gold); color:#FDE68A;
+    animation:rouletteLand .45s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes roulettePulse { from { transform:scale(.97); opacity:.65; } to { transform:scale(1); opacity:1; } }
+  @keyframes rouletteLand  { 0% { transform:scale(.9); } 60% { transform:scale(1.05); } 100% { transform:scale(1); } }
+
+  /* ---------- มินิเกมกู้บั๊กด่วน (Debug Rescue) ---------- */
+  .rescue-code {
+    font-family:'Kanit',sans-serif; font-size:34px; letter-spacing:8px; color:var(--gold);
+    text-align:center; background:#05100C; border:1px solid var(--gold); border-radius:10px;
+    padding:12px; margin:10px 0;
+  }
+  .rescue-input {
+    width:100%; text-align:center; text-transform:uppercase; letter-spacing:8px;
+    font-family:'Kanit',sans-serif; font-size:26px; background:#05100C; color:var(--text);
+    border:1px solid var(--line); border-radius:10px; padding:11px; margin-bottom:10px;
+  }
+  .role-pick { display:flex; gap:8px; }
+  .role-pick .btn { margin-top:0; }
+  .wire-row {
+    display:flex; align-items:center; gap:10px; margin-bottom:9px;
+    background:#0B241B; border:1px solid var(--line); border-radius:10px; padding:8px 12px;
+  }
+  .wire-bar { flex:1; height:16px; border-radius:8px; }
+  .wire-idx { font-family:monospace; font-size:12px; color:var(--muted); width:20px; }
+  .wire-row.cut { opacity:.4; }
+  .wire-row.cut .wire-bar { background:#333 !important; position:relative; }
+  .wire-cut-btn {
+    background:transparent; border:1px solid var(--bad); color:var(--bad); border-radius:8px;
+    font-family:'Kanit',sans-serif; font-size:13px; padding:5px 12px; cursor:pointer;
+  }
+  .wire-cut-btn:disabled { opacity:.4; cursor:default; }
+  .rescue-guide {
+    background:#14200E; border:1px solid var(--gold); border-radius:12px;
+    padding:16px; font-size:16px; line-height:1.7; color:#FDE68A;
+  }
+
   /* ---------- ปุ่มเลือกผู้ชนะ (event แบบ speed) ---------- */
   .speed-players { display:flex; gap:8px; margin:4px 0 6px; }
   .speed-player {
@@ -163,7 +208,7 @@
 <div class="app">
   <header>
     <h1>CodeCoin</h1>
-    <p>QR SYSTEM — PCB EDITION REV 1.5</p>
+    <p>QR SYSTEM — PCB EDITION REV 1.7</p>
   </header>
   <div id="dataStatus"></div>
   <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
@@ -246,9 +291,21 @@ const CONFIG = {
   log_url: "",            // (optional) URL Apps Script สำหรับเก็บสถิติการตอบ — เว้นว่าง = ไม่เก็บ
   discount_percent: 20,   // ส่วนลดเมื่อตอบถูก (%) — โหมดตอบธรรมดา
   bet_confident: {        // โหมด "มั่นใจ! 🔥" (เดิมพันในหน้าซื้อทรัพย์สิน)
-    discount_percent: 40, // ตอบถูก: ส่วนลดเพิ่มเป็น 40%
-    penalty_percent: 10,  // ตอบผิด: จ่ายแพงขึ้น 10% จากราคาเต็ม
+    discount_percent: 40, // ตอบถูก: ส่วนลดเพิ่มเป็น 40% — ตอบผิด: บังคับหมุน fail_roulette
   },
+  // วงล้อ "สุ่มผลแก้บั๊ก" สำหรับเลน มั่นใจ! + ตอบผิด เท่านั้น (ธรรมดา+ผิด จ่าย flat เดิม)
+  // หลักบาลานซ์: EV ~103-110% (แย่กว่าจ่ายเต็มเล็กน้อย และแย่กว่าตอบถูกมั่นใจ 60% เสมอ)
+  // variance กว้างคือตัวสร้างความลุ้น — มีช่องดี (<0.6) ได้แต่ weight ต้องน้อย
+  // และถ่วงด้วยช่องหนัก (>1.4) ให้ค่าเฉลี่ยคงอยู่ราว 100-110%
+  fail_roulette: [
+    { label: "🎉 Stack Overflow ช่วยไว้! จ่ายแค่ 40%",        mult: 0.4, weight: 1 },
+    { label: "Cache ยังอยู่ ลดให้ 20%",                        mult: 0.8, weight: 2 },
+    { label: "จ่ายตามจริง",                                     mult: 1.0, weight: 3 },
+    { label: "เซิร์ฟเวอร์คิดเพิ่ม +20%",                        mult: 1.2, weight: 3 },
+    { label: "โหลดพีค +40%",                                    mult: 1.4, weight: 2 },
+    { label: "💀 Kernel Panic! จ่าย +60%",                     mult: 1.6, weight: 1 },
+    { label: "โดน rate limit — จ่ายเต็ม + ข้ามตาถัดไป 1 รอบ",  mult: 1.0, weight: 1, skip: true },
+  ],
   zone_names: { coding:"Coding Avenue", design:"Design District", office:"Office Street", hardware:"Hardware Town" },
   zone_colors: { coding:"var(--coding)", design:"var(--design)", office:"var(--office)", hardware:"var(--hardware)" },
   upgrade_names: { 1:"มือใหม่", 2:"ชำนาญ", 3:"ผู้เชี่ยวชาญ" }, // ชื่อระดับ rent[1..3]
@@ -256,6 +313,44 @@ const CONFIG = {
   speed_players: 4,       // จำนวนปุ่มผู้เล่นบนหน้า speed
   bugjam_bonus_hard: 300,        // โบนัสตอบถูกโจทย์ Bug Jam ระดับยาก
   bugjam_bonus_hard_hinted: 150, // โบนัสระดับยากเมื่อกดดู hint แล้ว
+
+  // ---------- มินิเกม "กู้บั๊กด่วน" (Debug Rescue) ----------
+  // 2 คน 2 มือถือ: solver เห็นปริศนา + guide เห็นกฎ คุยด้วยปากเปล่า
+  // ไม่มี backend — ใช้ "รหัสร่วม 4 ตัว" เป็น seed ให้ทั้งคู่ derive ปริศนา+กฎชุดเดียวกัน
+  debug_rescue: {
+    reward: 200,   // สำเร็จ: โบนัสให้ทั้ง 2 คน (คงที่ ไม่ผูกราคาช่อง)
+    penalty: 100,  // ไม่สำเร็จ: โทษเบา ๆ เท่ากันทั้งคู่
+    hint_time_cut: 0.30,  // กดขอ hint แล้วตัดเวลาที่เหลือ 30%
+    patterns: [
+      {
+        id: "wire_cut", name: "ตัดสายไฟ", time_limit: 35, min_players: 2,
+        wire_colors: ["red", "green", "blue", "yellow", "white"],
+        wire_count_range: [4, 6],
+        rule_variants: [
+          { id: "v1", guide_text: "ถ้ามีเส้นสีเหลือง → ตัดเส้นสีน้ำเงินเส้นแรก ถ้าไม่มีเหลือง → ตัดเส้นแรกจากซ้าย" },
+          { id: "v2", guide_text: "นับจำนวนเส้นสีแดง ถ้าเป็นเลขคู่ (รวม 0) → ตัดเส้นสุดท้าย ถ้าเป็นเลขคี่ → ตัดเส้นที่ 2 จากขวา" },
+          { id: "v3", guide_text: "ถ้ามีเส้นสีซ้ำกัน → ตัดเส้นสีซ้ำเส้นแรก ถ้าไม่มีสีซ้ำเลย → ตัดเส้นสีเขียว" },
+          { id: "v4", guide_text: "ตัดเส้นที่สีไม่ใช่แดงและไม่ใช่เขียว เรียงจากซ้ายไปขวา 2 เส้น (ตามลำดับ)" },
+        ],
+      },
+      // ---- ต่อไปนี้วางโครงไว้ (config พร้อม แต่ยังไม่เปิดให้เล่นรอบนี้) ----
+      { id: "keypad", name: "ป้อนรหัสคีย์แพด", time_limit: 55, min_players: 2, enabled: false,
+        rule_variants: [
+          { id: "v1", guide_text: "ตารางไอคอน→เลข: กุญแจ=7, จรวด=3, ดาว=9, หัวใจ=1" },
+          { id: "v2", guide_text: "รหัสคือผลรวมเลขคี่ทั้งหมดบนปุ่ม บวก 1" },
+          { id: "v3", guide_text: "กดปุ่มตามลำดับกรอบสี: แดง → เขียว → น้ำเงิน → เหลือง" },
+        ] },
+      { id: "command_match", name: "จับคู่คำสั่ง", time_limit: 55, min_players: 2, enabled: false,
+        commands: ["print()", "len()", "sort()", "input()", "range()"],
+        rule_variants: [
+          { id: "v1", guide_text: "print()=แสดงข้อความ, len()=นับความยาว, sort()=เรียงลำดับ, input()=รับค่า, range()=สร้างช่วงตัวเลข" },
+          { id: "v2", guide_text: "จับคู่คำสั่งที่ขึ้นต้นด้วยตัวอักษรเดียวกันกับผลลัพธ์" },
+          { id: "v3", guide_text: "ใบ้อ้อม ทีละคำสั่ง ไม่บอกชื่อฟังก์ชันตรง ๆ" },
+        ] },
+      { id: "final_boss", name: "กู้ระบบขั้นสุด", time_limit: 90, min_players: 2, max_players: 3,
+        enabled: false, combines: ["wire_cut", "keypad"], one_time_per_game: true },
+    ],
+  },
 };
 
 /* =====================================================================
@@ -295,9 +390,9 @@ async function loadData() {
 }
 
 // ---------- (optional) ส่งสถิติการตอบไป Google Sheet ผ่าน Apps Script ----------
-function logAnswer(kind, id, level, correct) {
+function logAnswer(kind, id, level, correct, extra) {
   if (!CONFIG.log_url) return;
-  const body = JSON.stringify({ kind, space_id: id, level, correct, ts: new Date().toISOString() });
+  const body = JSON.stringify({ kind, space_id: id, level, correct, ts: new Date().toISOString(), ...extra });
   try { navigator.sendBeacon(CONFIG.log_url, body); }
   catch (e) { fetch(CONFIG.log_url, { method:"POST", body, keepalive:true }).catch(() => {}); }
 }
@@ -409,10 +504,10 @@ function renderSpace(id) {
   const pool = QUESTIONS.filter(q => q.space_id === id && q.level === 1);
   const conf = CONFIG.bet_confident;
 
-  // ราคาที่ต้องจ่ายตามโหมดเดิมพัน + ผลการตอบ
+  // ราคาที่ต้องจ่ายเมื่อรู้ยอดแน่นอน (ตอบถูกทั้งสองโหมด / ธรรมดา+ผิด = ราคาเต็ม)
+  // เลน มั่นใจ!+ผิด ไม่ผ่านฟังก์ชันนี้ — ยอดมาจากวงล้อ fail_roulette
   const payPrice = (mode, ok) => {
-    const pct = ok ? -(mode === "confident" ? conf.discount_percent : CONFIG.discount_percent)
-                   : (mode === "confident" ? conf.penalty_percent : 0);
+    const pct = ok ? -(mode === "confident" ? conf.discount_percent : CONFIG.discount_percent) : 0;
     return Math.round(sp.price * (100 + pct) / 100);
   };
 
@@ -433,7 +528,7 @@ function renderSpace(id) {
           <button class="bet-btn active" id="betNormal">ตอบธรรมดา
             <small>ถูก ลด ${CONFIG.discount_percent}% · ผิด ราคาเต็ม</small></button>
           <button class="bet-btn" id="betConfident">มั่นใจ! 🔥
-            <small>ถูก ลด ${conf.discount_percent}% · ผิด จ่ายเพิ่ม ${conf.penalty_percent}%</small></button>
+            <small>ถูก ลด ${conf.discount_percent}% · ผิด สุ่มผลแก้บั๊ก 🎰</small></button>
         </div>
         <div id="timerBox"></div>
         <p class="q" id="qText"></p>
@@ -475,21 +570,69 @@ function renderSpace(id) {
   renderQuiz(q, (ok, timedOut) => {
     Object.values(betBtns).forEach(b => b.disabled = true);
     logAnswer(betMode === "confident" ? "buy_confident" : "buy", id, 1, ok);
+
+    // เสียง+เอฟเฟกต์ตอนรู้ผล (กรณีหมดเวลา renderQuiz เล่น buzzer+แฟลชแดงให้แล้ว)
+    if (ok && betMode === "confident") { SFX.fanfare(); flash("gold"); }
+    else if (ok) { SFX.correct(); flash("green"); }
+    else if (!timedOut) { SFX.wrong(); flash("red"); }
+
+    // เลน มั่นใจ!+ผิด — ไม่รู้ยอดทันที ต้องหมุนวงล้อสุ่มผลแก้บั๊ก
+    if (!ok && betMode === "confident") {
+      document.getElementById("result").innerHTML = `
+        <div class="result lose">💥 มั่นใจแต่พลาด — ระบบพัง! ต้องสุ่มผลแก้บั๊ก</div>
+        <button class="btn" id="spinBtn">🎰 หมุนแก้บั๊ก</button>
+        <div id="rouletteBox"></div>`;
+      document.getElementById("spinBtn").onclick = () => spinFailRoulette(sp, id);
+      return;
+    }
+
     const pay = payPrice(betMode, ok).toLocaleString();
     let msg;
     if (ok) msg = betMode === "confident"
       ? `<div class="result win pop">🔥🎉 มั่นใจแล้วถูกจริง! ซื้อได้ในราคา <b>${pay}</b> (ลด ${conf.discount_percent}%)</div>`
       : `<div class="result win">🎉 ตอบถูก! ซื้อได้ในราคา <b>${pay}</b> (ลด ${CONFIG.discount_percent}%)</div>`;
-    else msg = betMode === "confident"
-      ? `<div class="result lose">💥 มั่นใจแต่พลาด — ซื้อได้ในราคา <b>${pay}</b> (ราคาเต็ม +${conf.penalty_percent}%)</div>`
-      : `<div class="result lose">ตอบผิด — ซื้อได้ในราคาเต็ม ${sp.price.toLocaleString()} TechCoin</div>`;
+    else msg = `<div class="result lose">ตอบผิด — ซื้อได้ในราคาเต็ม ${sp.price.toLocaleString()} TechCoin</div>`;
     document.getElementById("result").innerHTML = msg;
-
-    // เสียง+เอฟเฟกต์ (กรณีหมดเวลา renderQuiz เล่น buzzer+แฟลชแดงให้แล้ว)
-    if (ok && betMode === "confident") { SFX.fanfare(); flash("gold"); }
-    else if (ok) { SFX.correct(); flash("green"); }
-    else if (!timedOut) { SFX.wrong(); flash("red"); }
   });
+}
+
+// ---------- วงล้อสุ่มผลแก้บั๊ก (เฉพาะเลน มั่นใจ! + ตอบผิด) ----------
+// สุ่มผลด้วย weightedPick ตัวเดียวกับ event card / เสียงหมุนใช้ SFX.tick เดิม
+function spinFailRoulette(sp, spaceId) {
+  const btn = document.getElementById("spinBtn");
+  btn.disabled = true;
+  const box = document.getElementById("rouletteBox");
+  const pool = CONFIG.fail_roulette;
+  const final = weightedPick(pool);   // ผลจริงถูกล็อกก่อน แอนิเมชันแค่โชว์
+
+  const showFrame = (text, cls = "") => {
+    box.innerHTML = `<div class="roulette-frame ${cls}" id="rouletteFrame"></div>`;
+    document.getElementById("rouletteFrame").textContent = text;
+    return document.getElementById("rouletteFrame");
+  };
+
+  let delay = 60;
+  (function step() {
+    delay *= 1.15;                    // หน่วงขึ้นเรื่อย ๆ เหมือนวงล้อผ่อนแรง (~1.7 วิ)
+    if (delay < 320) {
+      showFrame(pool[Math.floor(Math.random() * pool.length)].label);
+      SFX.tick(false);
+      setTimeout(step, delay);
+      return;
+    }
+    // เด้งผลจริง
+    const pay = Math.round(sp.price * final.mult);
+    const frame = showFrame("", "final");
+    frame.innerHTML = `
+      <div id="rouletteLabel" style="font-size:17px;"></div>
+      <div class="price" style="font-size:21px; margin-top:6px;">จ่าย ${pay.toLocaleString()} TechCoin</div>
+      ${final.skip ? `<div style="color:var(--bad); font-weight:700; margin-top:6px;">⏸ และผู้เล่นคนนี้ต้องข้ามตาถัดไป 1 รอบ</div>` : ""}`;
+    document.getElementById("rouletteLabel").textContent = final.label;
+
+    if (final.mult < 1)      { SFX.correct(); flash("green"); }   // รอดถูกกว่าราคาเต็ม
+    else if (final.mult > 1 || final.skip) { SFX.wrong(); flash("red"); }
+    logAnswer("fail_roulette", spaceId, 1, false, { roulette_label: final.label, pay });
+  })();
 }
 
 // ---------- หน้าอัปเกรดทรัพย์สิน (?space={id}&upgrade={level}) ----------
@@ -809,6 +952,7 @@ function renderMenu() {
   items += `<div class="menu-zone" style="--zc:var(--bad)">
     <div class="menu-zone-head">พิเศษ</div>
     ${item("bugjam", "🐛 ติดบั๊ก (Bug Jam)")}
+    ${item("debug_rescue", "🚨 กู้บั๊กด่วน (2 คน)")}
   </div>`;
 
   screen.innerHTML = `
@@ -819,10 +963,222 @@ function renderMenu() {
     </div>`;
 }
 
-// ---------- ROUTER: อ่าน ?space= (+ &upgrade=) แล้วเลือกหน้า ----------
+/* =====================================================================
+   มินิเกม "กู้บั๊กด่วน" (Debug Rescue) — 2 คน 2 มือถือ
+   ---------------------------------------------------------------------
+   ไม่มี backend: ทั้งคู่พิมพ์ "รหัสร่วม 4 ตัว" เดียวกัน → seed → derive
+   ปริศนา+กฎชุดเดียวกันแบบ deterministic (solver ตรวจผลเองได้)
+   ===================================================================== */
+
+// PRNG แบบ deterministic จาก string seed (mulberry32) — ต้องได้ผลเดิมทุกเครื่อง
+// หมายเหตุ: weightedPick เดิมใช้ Math.random (สุ่มสด) จึงใช้ที่นี่ไม่ได้ เพราะ 2 เครื่องต้องตรงกัน
+function seededRng(str) {
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  let a = h >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rngInt = (rng, lo, hi) => lo + Math.floor(rng() * (hi - lo + 1)); // รวม hi
+
+// เช็คว่า layout นี้ "กฎ apply ได้จริง" — กัน edge case ที่ guide อ่านกฎแล้วหาเส้นไม่เจอ
+// (เช่น v1 มีเหลืองแต่ไม่มีน้ำเงิน, v4 มีเส้นเข้าเงื่อนไขไม่ถึง 2)
+function wireRuleClean(colors, vid) {
+  if (vid === "v1") return !colors.includes("yellow") || colors.includes("blue");
+  if (vid === "v3") {
+    const hasDup = colors.some((c, i) => colors.indexOf(c) !== i);
+    return hasDup || colors.includes("green");
+  }
+  if (vid === "v4") return colors.filter(c => c !== "red" && c !== "green").length >= 2;
+  return true; // v2 แก้ได้เสมอ
+}
+
+// สร้างสถานะ wire_cut จาก seed — ทั้ง solver/guide เรียกโค้ดเดียวกัน = ผลตรงกันเป๊ะ
+function buildWireCut(rng) {
+  const P = CONFIG.debug_rescue.patterns.find(p => p.id === "wire_cut");
+  const n = rngInt(rng, P.wire_count_range[0], P.wire_count_range[1]);
+  let variant = P.rule_variants[rngInt(rng, 0, P.rule_variants.length - 1)];
+  let colors;
+  // ดึงสีใหม่จนกฎ apply ได้จริง (rng เดินเหมือนกันทั้ง 2 เครื่อง จึงยัง deterministic)
+  for (let tries = 0; tries < 24; tries++) {
+    colors = Array.from({ length: n }, () => P.wire_colors[rngInt(rng, 0, P.wire_colors.length - 1)]);
+    if (wireRuleClean(colors, variant.id)) break;
+    if (tries === 23) variant = P.rule_variants[1]; // v2 แก้ได้เสมอ — กันลูปไม่จบ
+  }
+  return { colors, variant, answer: wireAnswer(colors, variant.id) };
+}
+
+// คำนวณลำดับเส้นที่ต้องตัด (index) ตามกฎแต่ละเวอร์ชัน — fallback ให้แก้ได้เสมอ
+function wireAnswer(colors, vid) {
+  const firstOf = c => colors.indexOf(c);
+  if (vid === "v1") {
+    if (colors.includes("yellow")) { const b = firstOf("blue"); return [b >= 0 ? b : 0]; }
+    return [0];
+  }
+  if (vid === "v2") {
+    const reds = colors.filter(c => c === "red").length;
+    return [reds % 2 === 0 ? colors.length - 1 : Math.max(0, colors.length - 2)];
+  }
+  if (vid === "v3") {
+    const dupColor = colors.find((c, i) => colors.indexOf(c) !== i && colors.indexOf(c) === colors.lastIndexOf(c) - (colors.filter(x => x === c).length - 1))
+      || colors.find(c => colors.filter(x => x === c).length >= 2);
+    if (dupColor) return [colors.indexOf(dupColor)];
+    const g = firstOf("green"); return [g >= 0 ? g : 0];
+  }
+  if (vid === "v4") {
+    const idxs = colors.map((c, i) => ({ c, i })).filter(o => o.c !== "red" && o.c !== "green").map(o => o.i);
+    return idxs.length ? idxs.slice(0, 2) : [0];
+  }
+  return [0];
+}
+
+const WIRE_HEX = { red: "#F87171", green: "#4ADE80", blue: "#38BDF8", yellow: "#FBBF24", white: "#E2E8F0" };
+
+// หน้าแรก: เลือก/สร้างรหัสร่วม + เลือก role
+function renderRescueLanding() {
+  const code0 = Array.from({ length: 4 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:var(--bad)">🚨 Server Error</span>
+      <h2>กู้บั๊กด่วน (Debug Rescue)</h2>
+      <p class="content">มินิเกม 2 คน — <b>ผู้กด</b> เห็นปริศนา · <b>ผู้อ่านคู่มือ</b> เห็นกฎ ห้ามดูจอกัน คุยด้วยปากเปล่าเท่านั้น!</p>
+      <p class="content" style="margin-top:8px;">1. ตกลงรหัสร่วมกัน 1 ชุด (ทั้งคู่ต้องพิมพ์เหมือนกัน) · 2. แยกกันเลือกบทบาท · 3. กด "เริ่ม" พร้อมกัน</p>
+      <input class="rescue-input" id="rescueCode" maxlength="4" value="${code0}" autocomplete="off">
+      <p class="content" style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px;">รหัสสุ่มให้แล้ว — บอกเพื่อนให้พิมพ์รหัสนี้ หรือพิมพ์รหัสที่ตกลงกันเอง</p>
+      <p class="q">เครื่องนี้เป็น:</p>
+      <div class="role-pick">
+        <button class="btn" id="asSolver">🖥 ผู้กด (เห็นปริศนา)</button>
+        <button class="btn ghost" id="asGuide">📖 ผู้อ่านคู่มือ (เห็นกฎ)</button>
+      </div>
+    </div>`;
+  const go = role => {
+    const code = document.getElementById("rescueCode").value.trim().toUpperCase();
+    if (code.length < 3) { document.getElementById("rescueCode").focus(); return; }
+    location.search = `?space=debug_rescue&role=${role}&code=${code}`;
+  };
+  document.getElementById("asSolver").onclick = () => go("solver");
+  document.getElementById("asGuide").onclick = () => go("guide");
+}
+
+// timer ร่วม (เริ่มนับเมื่อกด "เริ่ม" บนเครื่องตัวเอง — ไม่ sync เป๊ะข้ามเครื่อง ตามสเปค)
+// onEnd(false) เมื่อหมดเวลา, คืนฟังก์ชัน stop ให้หยุดเมื่อชนะ/ออกจากหน้า
+function rescueTimer(seconds, boxId, onEnd) {
+  let t = seconds;
+  const tb = document.getElementById(boxId);
+  const paint = () => tb.innerHTML = `<div class="timer ${t <= 5 ? "danger" : ""}">⏱ ${t} วินาที</div>`;
+  paint();
+  const iv = setInterval(() => {
+    t--; paint();
+    if (t <= 0) { clearInterval(iv); SFX.buzzer(); flash("red"); onEnd(false); }
+    else SFX.tick(t <= 5);
+  }, 1000);
+  return {
+    stop: () => clearInterval(iv),
+    cut: pct => { t = Math.max(1, Math.round(t * (1 - pct))); paint(); }, // ตัดเวลาเมื่อขอ hint
+  };
+}
+
+// หน้า solver (ผู้กด) — เห็นปริศนา ตรวจผลเอง
+function renderRescueSolver(code) {
+  const P = CONFIG.debug_rescue.patterns.find(p => p.id === "wire_cut");
+  const state = buildWireCut(seededRng(code));
+  let step = 0, done = false, timer = null, hinted = false;
+
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:var(--bad)">🖥 ผู้กด · รหัส ${code}</span>
+      <h2>${P.name} — ตัดให้ถูก!</h2>
+      <p class="content">ฟังผู้อ่านคู่มือบอก แล้วกด "ตัด" ตามลำดับ</p>
+      <div id="rTimer"></div>
+      <div id="wires" style="margin:12px 0;"></div>
+      <button class="btn ghost" id="rHint">💡 ขอ hint (เสียเวลา ${Math.round(CONFIG.debug_rescue.hint_time_cut*100)}%)</button>
+      <div id="rHintBox"></div>
+      <div id="rResult"></div>
+    </div>`;
+
+  const wrap = document.getElementById("wires");
+  state.colors.forEach((c, i) => {
+    const row = document.createElement("div");
+    row.className = "wire-row";
+    row.innerHTML = `<span class="wire-idx">${i + 1}</span>
+      <div class="wire-bar" style="background:${WIRE_HEX[c]}"></div>
+      <button class="wire-cut-btn">✂ ตัด</button>`;
+    row.querySelector("button").onclick = () => cut(i, row);
+    wrap.appendChild(row);
+  });
+
+  const finish = ok => {
+    if (done) return;
+    done = true; timer.stop();
+    wrap.querySelectorAll("button").forEach(b => b.disabled = true);
+    document.getElementById("rHint").disabled = true;
+    const r = CONFIG.debug_rescue.reward, pen = CONFIG.debug_rescue.penalty;
+    if (ok) { SFX.celebrate(); confetti();
+      document.getElementById("rResult").innerHTML = `<div class="result win pop">🎉 กู้ระบบสำเร็จ! ทั้งคู่รับ ${r.toLocaleString()} TechCoin</div>`;
+    } else { SFX.wrong(); flash("red");
+      document.getElementById("rResult").innerHTML = `<div class="result lose">💀 ระบบล่ม — ทั้งคู่เสีย ${pen.toLocaleString()} TechCoin</div>`;
+    }
+    logAnswer("debug_rescue", "debug_rescue", 0, ok, { pattern: "wire_cut", variant: state.variant.id, hinted });
+    const back = document.createElement("button");
+    back.className = "btn"; back.textContent = "กลับเมนู";
+    back.onclick = renderMenu; document.getElementById("rResult").appendChild(back);
+  };
+
+  function cut(i, row) {
+    if (done || row.classList.contains("cut")) return;
+    row.classList.add("cut");
+    row.querySelector("button").disabled = true;
+    if (i === state.answer[step]) { SFX.correct(); step++; if (step >= state.answer.length) finish(true); }
+    else finish(false);  // ตัดผิดเส้น = ล่มทันที
+  }
+
+  document.getElementById("rHint").onclick = () => {
+    hinted = true;
+    document.getElementById("rHint").disabled = true;
+    timer.cut(CONFIG.debug_rescue.hint_time_cut);
+    document.getElementById("rHintBox").innerHTML =
+      `<div class="result info" style="margin-top:8px;">💡 กฎรอบนี้: ${state.variant.guide_text}</div>`;
+  };
+
+  timer = rescueTimer(P.time_limit, "rTimer", finish);
+}
+
+// หน้า guide (ผู้อ่านคู่มือ) — เห็นเฉพาะกฎ ไม่เห็นปริศนา
+function renderRescueGuide(code) {
+  const P = CONFIG.debug_rescue.patterns.find(p => p.id === "wire_cut");
+  const state = buildWireCut(seededRng(code));  // seed เดียวกัน → กฎตรงกับ solver
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:var(--gold);color:#05100C">📖 ผู้อ่านคู่มือ · รหัส ${code}</span>
+      <h2>${P.name} — คู่มือ</h2>
+      <p class="content">อ่านกฎให้ผู้กดฟัง ถามสีเส้นที่เขาเห็น แล้วบอกว่าให้ตัดเส้นไหน (ห้ามดูจอผู้กด!)</p>
+      <div id="rTimer"></div>
+      <div class="rescue-guide" style="margin-top:10px;">📋 กฎ: ${state.variant.guide_text}</div>
+      <button class="btn" style="margin-top:14px;" onclick="renderMenu()">กลับเมนู</button>
+    </div>`;
+  rescueTimer(P.time_limit, "rTimer", () => {
+    document.getElementById("rTimer").innerHTML = `<div class="result lose">⏱ หมดเวลา</div>`;
+  });
+}
+
+function renderDebugRescue() {
+  const role = params.get("role"), code = params.get("code");
+  if (!role || !code) { renderRescueLanding(); return; }
+  role === "guide" ? renderRescueGuide(code) : renderRescueSolver(code);
+}
+
+// ---------- ROUTER: อ่าน ?space= (+ &upgrade= / &role= &code=) แล้วเลือกหน้า ----------
 function route() {
   if (!param) renderMenu();
   else if (param === "bugjam") renderBugjam();
+  else if (param === "debug_rescue") renderDebugRescue();
   else if (param.startsWith("event_")) renderEvent(param.replace("event_", ""));
   else if (SPACES[param]) upgradeParam ? renderUpgrade(param, +upgradeParam) : renderSpace(param);
   else screen.innerHTML = `<div class="card"><h2>ไม่พบรหัสช่อง "${param}"</h2><button class="btn" onclick="renderMenu()">กลับเมนู</button></div>`;
