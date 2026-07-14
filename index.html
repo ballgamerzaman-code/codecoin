@@ -119,6 +119,22 @@
   .bet-btn.active small { color:#FDE68A; }
   .bet-btn:disabled { opacity:.55; cursor:default; }
 
+  /* ---------- modal ยืนยันโหมดมั่นใจ + countdown ---------- */
+  .confirm-overlay {
+    position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center;
+    background:rgba(5,16,12,.82); padding:20px; animation:fxFade2 .2s ease-out;
+  }
+  @keyframes fxFade2 { from { opacity:0; } to { opacity:1; } }
+  .confirm-modal {
+    width:100%; max-width:340px; background:var(--panel); border:2px solid var(--gold);
+    border-radius:16px; padding:20px 18px; text-align:center;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .confirm-modal .cd-num {
+    display:inline-block; min-width:26px; font-family:'Kanit',sans-serif; font-weight:800;
+  }
+  .confirm-modal .btn { margin-top:12px; }
+
   /* ---------- กรอบวงล้อสุ่มผลแก้บั๊ก (เลนมั่นใจ+ผิด) ---------- */
   .roulette-frame {
     background:#05100C; border:1px solid var(--line); border-radius:10px;
@@ -208,7 +224,7 @@
 <div class="app">
   <header>
     <h1>CodeCoin</h1>
-    <p>QR SYSTEM — PCB EDITION REV 1.8</p>
+    <p>QR SYSTEM — PCB EDITION REV 1.9</p>
   </header>
   <div id="dataStatus"></div>
   <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
@@ -290,8 +306,10 @@ const CONFIG = {
   data_url: "data.json",  // แหล่งข้อมูลจริง — เปลี่ยนเป็น URL Apps Script/opensheet ได้เลย
   log_url: "",            // (optional) URL Apps Script สำหรับเก็บสถิติการตอบ — เว้นว่าง = ไม่เก็บ
   discount_percent: 20,   // ส่วนลดเมื่อตอบถูก (%) — โหมดตอบธรรมดา
-  bet_confident: {        // โหมด "มั่นใจ! 🔥" (เดิมพันในหน้าซื้อทรัพย์สิน)
+  bet_confident: {        // โหมด "ตอบมั่นใจ 💎" (เดิมพันในหน้าซื้อทรัพย์สิน)
     discount_percent: 40, // ตอบถูก: ส่วนลดเพิ่มเป็น 40% — ตอบผิด: บังคับหมุน fail_roulette
+    confirm_seconds: 5,   // เวลานับถอยหลังบน modal ยืนยัน (หมดเวลา = ยกเลิกอัตโนมัติ)
+    question_level: 4,    // คำถามโหมดมั่นใจดึงจาก level นี้ (คนละชุด/ยากกว่า L1-3)
   },
   // วงล้อ "สุ่มผลแก้บั๊ก" สำหรับเลน มั่นใจ! + ตอบผิด เท่านั้น (ธรรมดา+ผิด จ่าย flat เดิม)
   // หลักบาลานซ์: EV ~103-110% (แย่กว่าจ่ายเต็มเล็กน้อย และแย่กว่าตอบถูกมั่นใจ 60% เสมอ)
@@ -513,13 +531,16 @@ function weightedPick(list) {
 }
 
 // ---------- หน้าช่องทรัพย์สิน ----------
+// flow: เลือกโหมดก่อน (ยังไม่เห็นคำถาม) → ปกติ = คำถาม L1 ทันที /
+//        มั่นใจ = modal ยืนยัน + countdown → คำถาม L4 (ยากกว่า, คนละชุด)
 function renderSpace(id) {
   const sp = SPACES[id];
-  const pool = QUESTIONS.filter(q => q.space_id === id && q.level === 1);
+  const l1pool = QUESTIONS.filter(q => q.space_id === id && q.level === 1);
+  const l4pool = QUESTIONS.filter(q => q.space_id === id && q.level === CONFIG.bet_confident.question_level);
   const conf = CONFIG.bet_confident;
 
-  // ราคาที่ต้องจ่ายเมื่อรู้ยอดแน่นอน (ตอบถูกทั้งสองโหมด / ธรรมดา+ผิด = ราคาเต็ม)
-  // เลน มั่นใจ!+ผิด ไม่ผ่านฟังก์ชันนี้ — ยอดมาจากวงล้อ fail_roulette
+  // ราคาจ่ายเมื่อรู้ยอดแน่นอน (ตอบถูกทั้งสองโหมด / ปกติ+ผิด = ราคาเต็ม)
+  // เลน มั่นใจ+ผิด ไม่ผ่านฟังก์ชันนี้ — ยอดมาจากวงล้อ fail_roulette
   const payPrice = (mode, ok) => {
     const pct = ok ? -(mode === "confident" ? conf.discount_percent : CONFIG.discount_percent) : 0;
     return Math.round(sp.price * (100 + pct) / 100);
@@ -534,80 +555,117 @@ function renderSpace(id) {
       </div>
     </div>`;
 
-  let quizCard;
-  if (pool.length) {
-    quizCard = `
-      <div class="card">
-        <div class="bet-row">
-          <button class="bet-btn active" id="betNormal">ตอบธรรมดา
-            <small>ถูก ลด ${CONFIG.discount_percent}% · ผิด ราคาเต็ม</small></button>
-          <button class="bet-btn" id="betConfident">มั่นใจ! 🔥
-            <small>ถูก ลด ${conf.discount_percent}% · ผิด สุ่มผลแก้บั๊ก 🎰</small></button>
-        </div>
-        <div id="timerBox"></div>
-        <p class="q" id="qText"></p>
-        <div id="choices"></div>
-        <div id="result"></div>
-      </div>`;
-  } else {
-    quizCard = `<div class="card"><div class="result info">ยังไม่มีคำถามสำหรับช่องนี้ — ซื้อได้ในราคาเต็ม</div></div>`;
-  }
-
-  screen.innerHTML = `
+  const headerCard = `
     <div class="card">
       ${zoneTag(sp.zone)}
       <h2>${sp.name_th}</h2>
       <p class="content" id="spContent"></p>
       <p style="margin-top:10px;font-size:14px;">ราคา: <span class="price">${sp.price.toLocaleString()} TechCoin</span></p>
-    </div>
-    ${quizCard}
-    ${upgradeBtns}`;
-
-  // เนื้อหาอาจมีแท็ก HTML เป็นตัวอย่างในบทเรียน (เช่น <h1>) — ต้องใส่แบบ text ล้วน
-  document.getElementById("spContent").textContent =
+    </div>`;
+  const setContent = () => document.getElementById("spContent").textContent =
     sp.content_th.startsWith("📘") ? sp.content_th : "📘 " + sp.content_th;
 
-  if (!pool.length) return;
-  const q = pool[Math.floor(Math.random() * pool.length)];
-  document.getElementById("qText").textContent = "Q: " + q.question_th;
+  // ---- 1) หน้าเลือกโหมด (ยังไม่โชว์คำถาม) ----
+  function renderModeSelect(toast) {
+    const modeCard = l1pool.length ? `
+      <div class="card">
+        <p class="q">เลือกโหมดตอบก่อนเห็นคำถาม:</p>
+        <div class="bet-row">
+          <button class="bet-btn active" id="modeNormal">ตอบปกติ
+            <small>ถูก ลด ${CONFIG.discount_percent}% · ผิด ราคาเต็ม</small></button>
+          <button class="bet-btn" id="modeConfident">ตอบมั่นใจ 💎
+            <small>คำถามยากขึ้น · ถูก ลด ${conf.discount_percent}% · ผิด สุ่มผลแก้บั๊ก 🎰</small></button>
+        </div>
+        ${toast ? `<div class="result info" style="margin-top:4px;">${toast}</div>` : ""}
+      </div>`
+      : `<div class="card"><div class="result info">ยังไม่มีคำถามสำหรับช่องนี้ — ซื้อได้ในราคาเต็ม</div></div>`;
 
-  // โหมดเดิมพัน — สลับได้จนกว่าจะตอบ (หรือหมดเวลา)
-  let betMode = "normal";
-  const betBtns = { normal: document.getElementById("betNormal"), confident: document.getElementById("betConfident") };
-  for (const [mode, btn] of Object.entries(betBtns))
-    btn.onclick = () => {
-      betMode = mode;
-      betBtns.normal.classList.toggle("active", mode === "normal");
-      betBtns.confident.classList.toggle("active", mode === "confident");
-    };
+    screen.innerHTML = headerCard + modeCard + upgradeBtns;
+    setContent();
+    if (!l1pool.length) return;
+    document.getElementById("modeNormal").onclick = () =>
+      startQuiz("normal", l1pool[Math.floor(Math.random() * l1pool.length)], 1);
+    document.getElementById("modeConfident").onclick = confirmConfident;
+  }
 
-  renderQuiz(q, (ok, timedOut) => {
-    Object.values(betBtns).forEach(b => b.disabled = true);
-    logAnswer(betMode === "confident" ? "buy_confident" : "buy", id, 1, ok);
+  // ---- 2) modal ยืนยันโหมดมั่นใจ + countdown (หมดเวลา/ยกเลิก = กลับเลือกโหมด ไม่เสียสิทธิ์) ----
+  function confirmConfident() {
+    let remain = conf.confirm_seconds, iv = null;
+    const overlay = document.createElement("div");
+    overlay.className = "confirm-overlay";
+    overlay.innerHTML = `
+      <div class="confirm-modal">
+        <div style="font-family:'Kanit',sans-serif;font-size:20px;color:var(--gold);margin-bottom:8px;">มั่นใจจริงเหรอ? 💎</div>
+        <p class="content">คำถามจะ<b>ยากขึ้น</b> · ตอบถูกลด ${conf.discount_percent}% · <b style="color:var(--bad)">ตอบผิดต้องสุ่มผลแก้บั๊ก 🎰</b></p>
+        <button class="btn" id="confirmYes">ยืนยัน (<span class="cd-num" id="cdNum">${remain}</span> วิ)</button>
+        <button class="btn ghost" id="confirmNo">ยกเลิก</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    const close = () => { clearInterval(iv); overlay.remove(); };
+    SFX.tick(true);
+    iv = setInterval(() => {
+      remain--;
+      if (remain > 0) { document.getElementById("cdNum").textContent = remain; SFX.tick(true); }
+      else { close(); SFX.buzzer(); flash("red"); renderModeSelect("⏱ หมดเวลายืนยัน — เลือกโหมดใหม่ได้"); }
+    }, 1000);
+    document.getElementById("confirmYes").onclick = () => { close(); startConfident(); };
+    document.getElementById("confirmNo").onclick = () => { close(); renderModeSelect(); };
+  }
 
-    // เสียง+เอฟเฟกต์ตอนรู้ผล (กรณีหมดเวลา renderQuiz เล่น buzzer+แฟลชแดงให้แล้ว)
-    if (ok && betMode === "confident") { SFX.fanfare(); flash("gold"); }
-    else if (ok) { SFX.correct(); flash("green"); }
-    else if (!timedOut) { SFX.wrong(); flash("red"); }
+  // ---- 3) เข้าคำถามโหมดมั่นใจ: ดึง L4 (fallback L1 ถ้าไม่มี) ----
+  function startConfident() {
+    if (l4pool.length)
+      startQuiz("confident", l4pool[Math.floor(Math.random() * l4pool.length)], conf.question_level);
+    else
+      startQuiz("confident", l1pool[Math.floor(Math.random() * l1pool.length)], 1,
+        "⚠️ ยังไม่มีคำถามมั่นใจสำหรับช่องนี้ — ใช้คำถามปกติแทน");
+  }
 
-    // เลน มั่นใจ!+ผิด — ไม่รู้ยอดทันที ต้องหมุนวงล้อสุ่มผลแก้บั๊ก
-    if (!ok && betMode === "confident") {
-      document.getElementById("result").innerHTML = `
-        <div class="result lose">💥 มั่นใจแต่พลาด — ระบบพัง! ต้องสุ่มผลแก้บั๊ก</div>
-        <button class="btn" id="spinBtn">🎰 หมุนแก้บั๊ก</button>
-        <div id="rouletteBox"></div>`;
-      document.getElementById("spinBtn").onclick = () => spinFailRoulette(sp, id);
-      return;
-    }
+  // ---- การ์ดคำถาม (ใช้ทั้ง 2 โหมด) time_limit มาจากตัวคำถามเอง (L4 = 25 วิ) ----
+  function startQuiz(mode, q, level, toast) {
+    screen.innerHTML = `
+      <div class="card">
+        ${zoneTag(sp.zone)}
+        <h2>${sp.name_th}</h2>
+        <p style="font-size:14px;">ราคา <span class="price">${sp.price.toLocaleString()} TechCoin</span> · โหมด <b>${mode === "confident" ? "มั่นใจ 💎" : "ปกติ"}</b></p>
+      </div>
+      <div class="card">
+        ${toast ? `<div class="result info" style="margin-bottom:10px;">${toast}</div>` : ""}
+        <div id="timerBox"></div>
+        <p class="q" id="qText"></p>
+        <div id="choices"></div>
+        <div id="result"></div>
+      </div>`;
+    document.getElementById("qText").textContent = "Q: " + q.question_th;
 
-    const pay = payPrice(betMode, ok).toLocaleString();
-    let msg;
-    if (ok) msg = betMode === "confident"
-      ? `<div class="result win pop">🔥🎉 มั่นใจแล้วถูกจริง! ซื้อได้ในราคา <b>${pay}</b> (ลด ${conf.discount_percent}%)</div>`
-      : `<div class="result win">🎉 ตอบถูก! ซื้อได้ในราคา <b>${pay}</b> (ลด ${CONFIG.discount_percent}%)</div>`;
-    else msg = `<div class="result lose">ตอบผิด — ซื้อได้ในราคาเต็ม ${sp.price.toLocaleString()} TechCoin</div>`;
-    document.getElementById("result").innerHTML = msg;
-  });
+    renderQuiz(q, (ok, timedOut) => {
+      logAnswer(mode === "confident" ? "buy_confident" : "buy", id, level, ok, { question_level: level });
+
+      if (ok && mode === "confident") { SFX.fanfare(); flash("gold"); }
+      else if (ok) { SFX.correct(); flash("green"); }
+      else if (!timedOut) { SFX.wrong(); flash("red"); }
+
+      // เลน มั่นใจ+ผิด — ไม่รู้ยอดทันที ต้องหมุนวงล้อสุ่มผลแก้บั๊ก (คงพฤติกรรม REV 1.6)
+      if (!ok && mode === "confident") {
+        document.getElementById("result").innerHTML = `
+          <div class="result lose">💥 มั่นใจแต่พลาด — ระบบพัง! ต้องสุ่มผลแก้บั๊ก</div>
+          <button class="btn" id="spinBtn">🎰 หมุนแก้บั๊ก</button>
+          <div id="rouletteBox"></div>`;
+        document.getElementById("spinBtn").onclick = () => spinFailRoulette(sp, id);
+        return;
+      }
+
+      const pay = payPrice(mode, ok).toLocaleString();
+      let msg;
+      if (ok) msg = mode === "confident"
+        ? `<div class="result win pop">🔥🎉 มั่นใจแล้วถูกจริง! ซื้อได้ในราคา <b>${pay}</b> (ลด ${conf.discount_percent}%)</div>`
+        : `<div class="result win">🎉 ตอบถูก! ซื้อได้ในราคา <b>${pay}</b> (ลด ${CONFIG.discount_percent}%)</div>`;
+      else msg = `<div class="result lose">ตอบผิด — ซื้อได้ในราคาเต็ม ${sp.price.toLocaleString()} TechCoin</div>`;
+      document.getElementById("result").innerHTML = msg;
+    });
+  }
+
+  renderModeSelect();
 }
 
 // ---------- วงล้อสุ่มผลแก้บั๊ก (เฉพาะเลน มั่นใจ! + ตอบผิด) ----------
