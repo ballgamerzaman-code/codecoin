@@ -224,7 +224,7 @@
 <div class="app">
   <header>
     <h1>CodeCoin</h1>
-    <p>QR SYSTEM — PCB EDITION REV 1.9</p>
+    <p>QR SYSTEM — PCB EDITION REV 2.0</p>
   </header>
   <div id="dataStatus"></div>
   <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
@@ -329,8 +329,13 @@ const CONFIG = {
   upgrade_names: { 1:"มือใหม่", 2:"ชำนาญ", 3:"ผู้เชี่ยวชาญ" }, // ชื่อระดับ rent[1..3]
   speed_time_limit: 15,   // วินาทีของ event แบบ speed (แข่งตอบเร็ว)
   speed_players: 4,       // จำนวนปุ่มผู้เล่นบนหน้า speed
-  bugjam_bonus_hard: 300,        // โบนัสตอบถูกโจทย์ Bug Jam ระดับยาก
-  bugjam_bonus_hard_hinted: 150, // โบนัสระดับยากเมื่อกดดู hint แล้ว
+  bugjam_bonus_hard: 300,  // โบนัสตอบถูก Bug Jam ระดับยาก
+  bugjam_bonus_hint: 150,  // โบนัสระดับยากเมื่อกดดู hint แล้ว
+  bugjam_fine: 300,        // ค่าปรับตอบผิด/หมดเวลา ระดับง่าย (ไม่ให้ตอบซ้ำฟรี)
+  bugjam_fine_hard: 500,   // ค่าปรับระดับยาก (เสี่ยงกว่า เพราะเดิมพันโบนัสสูง)
+  bugjam_time_easy: 20,    // เวลาระดับง่าย (วิ) — ตึงกว่าเดิม
+  bugjam_time_hard: 45,    // เวลาระดับยาก (วิ)
+  bugjam_attempts: 1,      // ลองแก้ได้กี่ครั้งต่อเทิร์น (บังคับผ่าน UI: ปุ่มล็อกหลังตอบ)
 
   // ---------- มินิเกม "กู้บั๊กด่วน" (Debug Rescue) ----------
   // 2 คน 2 มือถือ: solver เห็นปริศนา + guide เห็นกฎ คุยด้วยปากเปล่า
@@ -912,25 +917,39 @@ function renderBugjam() {
     document.getElementById("diffHard").onclick = () => renderBugQuestion("hard");
 }
 
-// โจทย์ Bug Jam หนึ่งข้อตามระดับที่เลือก — state (ระดับ/กด hint แล้วหรือยัง)
-// เป็นตัวแปรในฟังก์ชันนี้ ใช้ครั้งเดียวจบต่อโจทย์ ไม่ persist
+// สลับตำแหน่งตัวเลือกแบบสุ่ม (Fisher-Yates) + รีแมป index เฉลย — กันเด็กจำตำแหน่งเฉลยรอบก่อน
+// คืน bug ก็อปใหม่ที่ choices สลับแล้ว, answer ชี้ถูก, และ time_limit ตามระดับ (จาก CONFIG)
+function shuffledBug(bug, timeLimit) {
+  const idx = bug.choices.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return { ...bug, choices: idx.map(i => bug.choices[i]), answer: idx.indexOf(bug.answer), time_limit: timeLimit };
+}
+
+// โจทย์ Bug Jam หนึ่งข้อตามระดับที่เลือก — 1 เทิร์นตอบได้ครั้งเดียว (ปุ่มล็อกหลังตอบ)
+// ตอบผิด/หมดเวลา = เสียค่าปรับ ไม่ให้ลองซ้ำฟรี (state ในฟังก์ชันนี้ ใช้ครั้งเดียวจบ ไม่ persist)
 function renderBugQuestion(diff) {
-  const pool = BUGJAM.filter(b => (b.difficulty || "easy") === diff);
-  const bug = pool[Math.floor(Math.random() * pool.length)];
   const isHard = diff === "hard";
+  const pool = BUGJAM.filter(b => (b.difficulty || "easy") === diff);
+  const raw = pool[Math.floor(Math.random() * pool.length)];
+  const bug = shuffledBug(raw, isHard ? CONFIG.bugjam_time_hard : CONFIG.bugjam_time_easy);
+  const fine = isHard ? CONFIG.bugjam_fine_hard : CONFIG.bugjam_fine;
   let hintUsed = false;
 
   screen.innerHTML = `
     <div class="card">
       <span class="zone-tag" style="background:var(--bad)">ติดบั๊ก (Bug Jam) · ระดับ${isHard ? "ยาก 💎" : "ง่าย"}</span>
       <h2>แก้โจทย์ Debug เพื่อออก!</h2>
+      <p class="content" style="font-size:12.5px;margin-bottom:8px;">⚠️ ตอบได้ครั้งเดียว! ผิดหรือหมดเวลา = เสียค่าปรับ ${fine.toLocaleString()} หรือรอทอยรอบหน้า</p>
       <div id="timerBox"></div>
       <div class="code-box" id="bugCode"></div>
       <p class="q" id="qText"></p>
       <div id="choices"></div>
       ${bug.hint ? `
         <button class="btn ghost" id="hintBtn">💡 ดู hint${isHard
-          ? ` (โบนัสจะลดเหลือ ${CONFIG.bugjam_bonus_hard_hinted})` : ""}</button>
+          ? ` (โบนัสจะลดเหลือ ${CONFIG.bugjam_bonus_hint})` : ""}</button>
         <div class="result info" id="hintText" style="display:none;"></div>` : ""}
       <div id="result"></div>
     </div>`;
@@ -948,17 +967,22 @@ function renderBugQuestion(diff) {
 
   renderQuiz(bug, (ok, timedOut) => {
     if (hintBtn) hintBtn.disabled = true;
-    logAnswer(isHard ? "bugjam_hard" : "bugjam", bug.bug_id || "bugjam", 0, ok);
+    logAnswer(isHard ? "bugjam_hard" : "bugjam", bug.bug_id || "bugjam", 0, ok, { difficulty: diff, hinted: hintUsed });
     let msg;
     if (ok && isHard) {
-      const bonus = hintUsed ? CONFIG.bugjam_bonus_hard_hinted : CONFIG.bugjam_bonus_hard;
-      msg = `<div class="result win">🔓💎 Debug สำเร็จ! ออกจากติดบั๊กฟรี + โบนัส ${bonus.toLocaleString()} TechCoin</div>`;
+      const bonus = hintUsed ? CONFIG.bugjam_bonus_hint : CONFIG.bugjam_bonus_hard;
+      msg = `<div class="result win pop">🔓💎 Debug สำเร็จ! ออกจากติดบั๊กฟรี + โบนัส ${bonus.toLocaleString()} TechCoin</div>`;
     } else if (ok) {
       msg = `<div class="result win">🔓 Debug สำเร็จ! ออกจากติดบั๊กได้ฟรี</div>`;
     } else {
-      msg = `<div class="result lose">ยังแก้ไม่ได้ — อยู่ต่ออีก 1 เทิร์น หรือจ่ายค่าปรับ</div>`;
+      // ตอบผิด/หมดเวลา = เสียค่าปรับ ห้ามลองซ้ำในเทิร์นนี้ (ระดับยากเสี่ยงกว่า + อดโบนัส)
+      const head = timedOut ? "⏱ หมดเวลา!" : "❌ แก้ไม่สำเร็จ!";
+      msg = `<div class="result lose">${head} เสียค่าปรับ <b>${fine.toLocaleString()}</b> TechCoin${isHard ? " + อดโบนัส 💎" : ""}<br>
+        <span style="font-size:12.5px;">รอทอยรอบหน้าค่อยลองใหม่ — ห้ามตอบซ้ำในเทิร์นนี้</span></div>`;
     }
     document.getElementById("result").innerHTML = msg;
+    document.getElementById("result").insertAdjacentHTML("beforeend",
+      `<button class="btn" onclick="renderMenu()">กลับเมนู</button>`);
 
     if (ok) { SFX.correct(); flash("green"); }
     else if (!timedOut) { SFX.wrong(); flash("red"); }
