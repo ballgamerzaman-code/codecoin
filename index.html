@@ -224,7 +224,7 @@
 <div class="app">
   <header>
     <h1>CodeCoin</h1>
-    <p>QR SYSTEM — PCB EDITION REV 2.0</p>
+    <p>QR SYSTEM — PCB EDITION REV 2.1</p>
   </header>
   <div id="dataStatus"></div>
   <div id="screen"><div class="card"><p class="content">⏳ กำลังโหลดข้อมูล...</p></div></div>
@@ -336,6 +336,11 @@ const CONFIG = {
   bugjam_time_easy: 20,    // เวลาระดับง่าย (วิ) — ตึงกว่าเดิม
   bugjam_time_hard: 45,    // เวลาระดับยาก (วิ)
   bugjam_attempts: 1,      // ลองแก้ได้กี่ครั้งต่อเทิร์น (บังคับผ่าน UI: ปุ่มล็อกหลังตอบ)
+
+  // ---------- บอสไฟต์จุดพักเครื่อง (Cooling Zone → ?space=cooling) ----------
+  bossfight_enabled: true, // ปิด = กลับกติกาดั้งเดิม (คนหยุดรับกองกลางคนเดียว)
+  bossfight_time: 75,      // เวลาบอสไฟต์ (วินาที) — นานกว่า Bug Jam เพราะเป็นโมเมนต์พีคทั้งวง
+  bossfight_rounds: 6,     // จำนวน "เลขรอบ" ให้เลือก (ใช้เป็น seed ให้ทุกเครื่องได้โจทย์เดียวกัน)
 
   // ---------- มินิเกม "กู้บั๊กด่วน" (Debug Rescue) ----------
   // 2 คน 2 มือถือ: solver เห็นปริศนา + guide เห็นกฎ คุยด้วยปากเปล่า
@@ -1049,6 +1054,7 @@ function renderMenu() {
     <div class="menu-zone-head">พิเศษ</div>
     ${item("bugjam", "🐛 ติดบั๊ก (Bug Jam)")}
     ${item("debug_rescue", "🚨 กู้บั๊กด่วน (2 คน)")}
+    ${item("cooling", "❄️ จุดพักเครื่อง — บอสไฟต์ทั้งวง")}
   </div>`;
 
   screen.innerHTML = `
@@ -1270,11 +1276,148 @@ function renderDebugRescue() {
   role === "guide" ? renderRescueGuide(code) : renderRescueSolver(code);
 }
 
+/* =====================================================================
+   บอสไฟต์จุดพักเครื่อง (Cooling Zone — ?space=cooling)
+   ---------------------------------------------------------------------
+   กติกาใหม่: ใครหยุดตรงช่องนี้ = ทั้งวงเข้าบอสไฟต์พร้อมกัน ทุกคนสแกน QR
+   เดียวกัน เลือก "เลขรอบ" ตามที่คนหยุดประกาศ → seed ตรงกัน → โจทย์เดียวกัน
+   ทุกเครื่อง (โหมด solo: เห็นกฎ+สายไฟบนจอตัวเอง อ่านกฎเองใต้เวลากดดัน)
+   เงินกองกลางเป็นธนบัตรจริงบนโต๊ะ — เว็บแค่ประกาศสัดส่วนแบ่งให้ธนาคารแจก
+   ===================================================================== */
+function renderCoolingBoss() {
+  if (!CONFIG.bossfight_enabled) {
+    screen.innerHTML = `
+      <div class="card">
+        <span class="zone-tag" style="background:#38BDF8">จุดพักเครื่อง (Cooling Zone)</span>
+        <h2>❄️ พักเครื่อง</h2>
+        <div class="result info">รับเงินกองกลางทั้งหมดจากกลางกระดาน (กติกาดั้งเดิม — บอสไฟต์ปิดอยู่)</div>
+        <button class="btn" onclick="renderMenu()">กลับเมนู</button>
+      </div>`;
+    return;
+  }
+
+  let roundBtns = "";
+  for (let r = 1; r <= CONFIG.bossfight_rounds; r++)
+    roundBtns += `<button class="speed-player" data-round="${r}" style="flex:0 0 30%;">รอบ ${r}</button>`;
+
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:#38BDF8">จุดพักเครื่อง (Cooling Zone)</span>
+      <h2>🚨 บอสไฟต์: กู้บั๊กด่วนทั้งวง!</h2>
+      <p class="content"><b>ทุกคนหยิบมือถือขึ้นมาสแกน QR ช่องนี้ — ไม่ใช่เฉพาะคนที่หยุด!</b>
+        ใครแก้บั๊กทันเวลา ได้ส่วนแบ่งจากกองกลาง 💰</p>
+      <p class="content" style="margin-top:8px;font-size:13px;">
+        1. คนที่หยุดประกาศ "เลขรอบ" (บอสครั้งแรกของเกม = รอบ 1, ครั้งถัดไป = รอบ 2, ...)<br>
+        2. ทุกคนกดเลขรอบเดียวกัน → ได้โจทย์เดียวกันทุกเครื่อง<br>
+        3. รอกันครบ นับ 3-2-1 แล้วกด "เริ่ม" พร้อมกัน</p>
+      <p class="q" style="margin-top:10px;">เลขรอบ (ตามที่คนหยุดประกาศ):</p>
+      <div class="speed-players" style="flex-wrap:wrap;">${roundBtns}</div>
+    </div>`;
+  document.querySelectorAll("[data-round]").forEach(b =>
+    b.onclick = () => renderCoolingReady(+b.dataset.round));
+}
+
+function renderCoolingReady(round) {
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:#38BDF8">บอสไฟต์ · รอบ ${round}</span>
+      <h2>พร้อมยัง?</h2>
+      <p class="content">รอทุกคนมาถึงหน้านี้ แล้วนับ 3-2-1 กด "เริ่ม" พร้อมกันทั้งวง —
+        เวลา <b>${CONFIG.bossfight_time} วินาที</b> เท่ากันทุกเครื่อง</p>
+      <button class="btn" id="bossStart">🚀 เริ่ม!</button>
+      <button class="btn ghost" id="bossBack">เปลี่ยนเลขรอบ</button>
+    </div>`;
+  document.getElementById("bossStart").onclick = () => renderCoolingPlay(round);
+  document.getElementById("bossBack").onclick = renderCoolingBoss;
+}
+
+function renderCoolingPlay(round) {
+  // seed จาก slug + เลขรอบ → ทุกเครื่องที่กดรอบเดียวกันได้กฎ+สายไฟชุดเดียวกันเป๊ะ
+  const state = buildWireCut(seededRng("cooling-" + round));
+  let step = 0, done = false, timer = null;
+
+  screen.innerHTML = `
+    <div class="card">
+      <span class="zone-tag" style="background:#38BDF8">บอสไฟต์ · รอบ ${round}</span>
+      <h2>ตัดสายไฟตามกฎ!</h2>
+      <div id="rTimer"></div>
+      <div class="rescue-guide" style="margin:10px 0;">📋 กฎ: ${state.variant.guide_text}</div>
+      <div id="wires"></div>
+      <div id="rResult"></div>
+    </div>`;
+
+  const wrap = document.getElementById("wires");
+  state.colors.forEach((c, i) => {
+    const row = document.createElement("div");
+    row.className = "wire-row";
+    row.innerHTML = `<span class="wire-idx">${i + 1}</span>
+      <div class="wire-bar" style="background:${WIRE_HEX[c]}"></div>
+      <button class="wire-cut-btn">✂ ตัด</button>`;
+    row.querySelector("button").onclick = () => cut(i, row);
+    wrap.appendChild(row);
+  });
+
+  // จบ (ของเครื่องนี้เท่านั้น): ผ่าน/ไม่ผ่าน แล้วเปิดแผงสรุปสำหรับธนาคาร
+  const finish = (ok, timedOut) => {
+    if (done) return;
+    done = true; timer.stop();
+    wrap.querySelectorAll("button").forEach(b => b.disabled = true);
+    // เฉลยให้เห็นว่าต้องตัดเส้นไหน (เพื่อการเรียนรู้หลังจบ)
+    state.answer.forEach(i => wrap.children[i].style.outline = "2px solid var(--ok)");
+    if (ok) {
+      SFX.celebrate(); confetti();
+      document.getElementById("rResult").innerHTML =
+        `<div class="result win pop">✅ คุณผ่าน! ยกมือบอกวงเลย 🙌</div>`;
+    } else {
+      if (!timedOut) { SFX.wrong(); flash("red"); }  // หมดเวลา rescueTimer เล่น buzzer ให้แล้ว
+      document.getElementById("rResult").innerHTML =
+        `<div class="result lose">${timedOut ? "⏱ หมดเวลา" : "❌ ตัดพลาด"} — รอบนี้อดส่วนแบ่ง</div>`;
+    }
+    logAnswer("cooling_boss", "cooling", 0, ok, { round, variant: state.variant.id });
+    renderBankPanel();
+  };
+
+  function cut(i, row) {
+    if (done || row.classList.contains("cut")) return;
+    row.classList.add("cut");
+    row.querySelector("button").disabled = true;
+    if (i === state.answer[step]) { SFX.correct(); step++; if (step >= state.answer.length) finish(true, false); }
+    else finish(false, false);  // ตัดผิดเส้น = ล่มทันที
+  }
+
+  timer = rescueTimer(CONFIG.bossfight_time, "rTimer", () => finish(false, true));
+}
+
+// แผงสรุปการแบ่งกองกลาง — คนคุมธนาคารใช้เครื่องไหนก็ได้ กดจำนวนคนที่ผ่าน
+// เว็บไม่รู้ขนาดกองกลาง (เงินจริงบนโต๊ะ) จึงประกาศเป็นสัดส่วน ไม่คำนวณจำนวนเงิน
+function renderBankPanel() {
+  const box = document.getElementById("rResult");
+  const btns = [0, 1, 2, 3, 4, 5, 6].map(n =>
+    `<button class="speed-player" data-pass="${n}" style="flex:0 0 22%;">${n}</button>`).join("");
+  box.insertAdjacentHTML("beforeend", `
+    <div class="card" style="margin-top:12px;">
+      <p class="q">🏦 สำหรับคนคุมธนาคาร — ทั้งวงผ่านกี่คน?</p>
+      <div class="speed-players" style="flex-wrap:wrap;">${btns}</div>
+      <div id="bankShare"></div>
+      <button class="btn" onclick="renderMenu()">กลับเมนู</button>
+    </div>`);
+  box.querySelectorAll("[data-pass]").forEach(b => b.onclick = () => {
+    const n = +b.dataset.pass;
+    const msg = n === 0
+      ? `<div class="result lose">❌ ไม่มีใครแก้ทัน → กองกลางสะสมต่อ ไม่มีใครได้</div>`
+      : n === 1
+        ? `<div class="result win">🏆 ผ่านคนเดียว — รับกองกลางทั้งหมดไปเลย!</div>`
+        : `<div class="result win">✅ ผ่าน ${n} คน → แบ่งกองกลางเท่ากัน คนละ 1/${n} ของกอง</div>`;
+    document.getElementById("bankShare").innerHTML = msg;
+  });
+}
+
 // ---------- ROUTER: อ่าน ?space= (+ &upgrade= / &role= &code=) แล้วเลือกหน้า ----------
 function route() {
   if (!param) renderMenu();
   else if (param === "bugjam") renderBugjam();
   else if (param === "debug_rescue") renderDebugRescue();
+  else if (param === "cooling") renderCoolingBoss();
   else if (param.startsWith("event_")) renderEvent(param.replace("event_", ""));
   else if (SPACES[param]) upgradeParam ? renderUpgrade(param, +upgradeParam) : renderSpace(param);
   else screen.innerHTML = `<div class="card"><h2>ไม่พบรหัสช่อง "${param}"</h2><button class="btn" onclick="renderMenu()">กลับเมนู</button></div>`;
